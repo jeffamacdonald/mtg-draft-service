@@ -1,24 +1,44 @@
 # README
+Setting up your system for development with mtg-draft-service
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Update apt:
+	* ```sudo apt update```
+Install dependencies for ruby:
+	* ```sudo apt install autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm5 libgdbm-dev```
+Get rbenv:
+	* ```git clone https://github.com/rbenv/rbenv.git ~/.rbenv```
+	* ```echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc```
+	* ```echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+	source ~/.bashrc```
+	* ```git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build```
+Get ruby:
+	* ```rbenv install 2.5.1```
+	* ```rbenv global 2.5.1```
+Configure gems and install bundler:
+	* ```echo "gem: --no-document" > ~/.gemrc```
+	* ```gem install bundler```
+Install rails:
+	* ```gem install rails -v 5.2.0```
+Rehash ruby:
+	* ```rbenv rehash```
+Install postgres:
+	* ```sudo su -```
+	* ```apt-get install postgresql postgresql-contrib```
+	* ```update-rc.d postgresql enable```
+If you cannot log in to postgres with `su - postgres` update the postgres user password:
+	* ```sudo -u postgres psql```
+	* ```ALTER USER postgres PASSWORD 'newpassword';```
 
-Things you may want to cover:
+Configuration
+	* Run bundler `bundle install`
+	* Generate key with `rake secret` and set to environment variable DEVISE_JWT_SECRET_KEY
 
-* Ruby version
+Database initialization
+	* Start postgres with `service postgresql start`
+	* Run `rake db:migrate`
 
-* System dependencies
+How to run the test suite
+	* `bundle exec rspec spec`
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Deployment instructions
+	* TBD
