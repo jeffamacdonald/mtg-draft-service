@@ -1,0 +1,3 @@
+class CubeCard < ApplicationRecord
+
+end

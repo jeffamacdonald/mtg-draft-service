@@ -1,0 +1,3 @@
+class Cube < ApplicationRecord
+
+end
