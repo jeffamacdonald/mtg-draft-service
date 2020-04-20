@@ -15,26 +15,19 @@ ActiveRecord::Schema.define(version: 2020_04_18_001126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "card_types", force: :cascade do |t|
-    t.bigint "cards_id"
-    t.string "type"
-    t.string "sub_type"
-    t.string "super_type"
-    t.index ["cards_id"], name: "index_card_types_on_cards_id"
-    t.index ["sub_type"], name: "index_card_types_on_sub_type"
-    t.index ["type"], name: "index_card_types_on_type"
-  end
-
   create_table "cards", force: :cascade do |t|
     t.string "name", null: false
     t.string "cost"
     t.integer "converted_mana_cost"
+    t.string "color_identity", null: false
+    t.string "type_line", null: false
     t.string "card_text"
     t.string "layout"
     t.integer "power"
     t.integer "toughness"
     t.string "default_image", null: false
-    t.string "color_identity", null: false
+    t.string "default_set", null: false
+    t.datetime "created_at"
     t.index ["card_text"], name: "index_cards_on_card_text"
     t.index ["color_identity"], name: "index_cards_on_color_identity"
     t.index ["converted_mana_cost"], name: "index_cards_on_converted_mana_cost"
@@ -44,20 +37,26 @@ ActiveRecord::Schema.define(version: 2020_04_18_001126) do
   end
 
   create_table "cube_cards", force: :cascade do |t|
-    t.bigint "cubes_id"
-    t.bigint "cards_id"
-    t.string "set"
+    t.bigint "cube_id"
+    t.bigint "card_id"
+    t.integer "count", null: false
+    t.string "custom_set"
+    t.string "custom_image"
     t.string "custom_color_identity"
-    t.index ["cards_id"], name: "index_cube_cards_on_cards_id"
-    t.index ["cubes_id"], name: "index_cube_cards_on_cubes_id"
+    t.boolean "soft_delete"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["card_id"], name: "index_cube_cards_on_card_id"
+    t.index ["cube_id"], name: "index_cube_cards_on_cube_id"
+    t.index ["soft_delete"], name: "index_cube_cards_on_soft_delete"
   end
 
   create_table "cubes", force: :cascade do |t|
-    t.bigint "users_id"
+    t.bigint "user_id"
     t.string "name", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.index ["users_id"], name: "index_cubes_on_users_id"
+    t.index ["user_id"], name: "index_cubes_on_user_id"
   end
 
   create_table "jwt_blacklist", force: :cascade do |t|
@@ -71,17 +70,16 @@ ActiveRecord::Schema.define(version: 2020_04_18_001126) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
     t.string "username"
     t.string "phone"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_foreign_key "card_types", "cards", column: "cards_id"
-  add_foreign_key "cube_cards", "cards", column: "cards_id"
-  add_foreign_key "cube_cards", "cubes", column: "cubes_id"
-  add_foreign_key "cubes", "users", column: "users_id"
+  add_foreign_key "cube_cards", "cards"
+  add_foreign_key "cube_cards", "cubes"
+  add_foreign_key "cubes", "users"
 end
