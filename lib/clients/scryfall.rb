@@ -4,7 +4,7 @@ require 'cgi'
 module Clients
 	class Scryfall
 		BASE_URL = "https://api.scryfall.com"
-		CARD_FIELDS = %w[name layout img_uris mana_cost cmc type_line oracle_text color_identity set power toughness]
+		CARD_FIELDS = %w[name layout image_uris mana_cost cmc type_line oracle_text color_identity set power toughness]
 
 		def initialize
 			@client = Faraday.new BASE_URL do |faraday|

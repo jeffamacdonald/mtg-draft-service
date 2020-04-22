@@ -5,7 +5,7 @@ class CubeEnricher
 
 	def get_enriched_cube_list
 		@cube_list.map { |card|
-			scryfall_card(card[:name], card[:set]).merge({
+			scryfall_card(card[:card_name], card[:set]).merge({
 				"count" => card[:count],
 				"custom_color_identity" => card[:custom_color_identity]})
 		}

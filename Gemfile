@@ -18,6 +18,8 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'devise-jwt'
 gem 'faraday'
 gem 'require_all'
+gem 'fog-aws'
+gem 'carrierwave', '~> 2.0'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

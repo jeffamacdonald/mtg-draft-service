@@ -4,13 +4,13 @@ RSpec.describe CubeEnricher do
 	describe '#get_enriched_cube_list' do
 		let(:cube_list) do
 			[{
-				"name": "shock",
+				"card_name": "shock",
 				"set": "SHD"
 			}.merge(user_provided_params), {
-				"name": "channel",
+				"card_name": "channel",
 				"set": "LEB"
 			}.merge(user_provided_params), {
-				"name": "tundra",
+				"card_name": "tundra",
 				"set": "3ED"
 			}.merge(user_provided_params)]
 		end

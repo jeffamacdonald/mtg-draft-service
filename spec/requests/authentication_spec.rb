@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe 'POST /login', type: :request do
 	let(:user) { create :user }
-  let(:url) { '/users/login' }
+  let(:url) { '/api/v1/users/login' }
   let(:params) do
     {
-      user: {
+      app_user: {
         email: user.email,
         password: user.password
       }
@@ -29,7 +29,7 @@ RSpec.describe 'POST /login', type: :request do
   context 'when params are incorrect' do
   	let(:params) do
   		{
-  			user: {
+  			app_user: {
 	  			email: user.email
 	  		}
 	  	}
@@ -42,7 +42,7 @@ RSpec.describe 'POST /login', type: :request do
 end
 
 RSpec.describe 'DELETE /logout', type: :request do
-  let(:url) { '/users/logout' }
+  let(:url) { '/api/v1/users/logout' }
 
   subject { delete url }
 

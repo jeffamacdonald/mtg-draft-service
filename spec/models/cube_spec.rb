@@ -50,7 +50,7 @@ RSpec.describe Cube do
 			}
 		end
 		let(:enriched_list) do
-			[enriched_card_1, enriched_card_2]
+			[enriched_card_1.with_indifferent_access, enriched_card_2.with_indifferent_access]
 		end
 
 		subject { cube.create_cube_cards(enriched_list) }
@@ -104,7 +104,7 @@ RSpec.describe Cube do
 			let(:scryfall_response) do
 				{
 					name: card_name,
-					img_uris: {
+					image_uris: {
 						normal: custom_image
 					}
 				}

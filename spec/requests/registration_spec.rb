@@ -1,14 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'POST /register', type: :request do
-  let(:url) { '/users/register' }
+  let(:url) { '/api/v1/users/register' }
   let(:email) {'user@example.com'}
   let(:username) {'testuser'}
   let(:phone) {'9876543210'}
   let(:password) {'password'}
   let(:params) do
     {
-      user: {
+      app_user: {
         email: email,
         username: username,
         phone: phone,
@@ -36,7 +36,7 @@ RSpec.describe 'POST /register', type: :request do
   end
 
   context 'when user already exists' do
-    let!(:user) { create :user, email: params[:user][:email] }
+    let!(:user) { create :user, email: params[:app_user][:email] }
 
     it 'returns bad request status' do
       subject

@@ -1,8 +1,8 @@
-class SessionsController < Devise::SessionsController
+class API::V1::SessionsController < Devise::SessionsController
 	respond_to :json
 
-	private 
-	
+	private
+
   def respond_with(resource, _opts = {})
     render json: resource
   end
