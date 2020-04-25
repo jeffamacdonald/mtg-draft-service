@@ -14,6 +14,7 @@ Rails.application.routes.draw do
                    registrations: 'api/v1/registrations'
                  }
       post 'cubes/create', to: 'cubes#create'
+      post 'cubes/import', to: 'cubes#import'
     end
   end
 

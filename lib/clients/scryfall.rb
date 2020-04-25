@@ -8,6 +8,7 @@ module Clients
 
 		def initialize
 			@client = Faraday.new BASE_URL do |faraday|
+				faraday.use Faraday::Response::RaiseError
 				faraday.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 			end
 		end
@@ -16,7 +17,7 @@ module Clients
 			encoded_name = CGI.escape card_name
 			params = set.nil? ? encoded_name : encoded_name + "&set=" + set
 			response = @client.get("/cards/named?fuzzy=" + params)
-			response.status == 200 ? sanitize(response) : nil
+			sanitize(response)
 		end
 
 		private

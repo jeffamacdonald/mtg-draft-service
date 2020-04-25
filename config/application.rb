@@ -21,6 +21,10 @@ Bundler.require(*Rails.groups)
 
 module MtgDraftService
   class Application < Rails::Application
+    config.before_configuration do
+      require 'carrierwave'
+    end
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
     config.autoload_paths << "#{Rails.root}/lib"

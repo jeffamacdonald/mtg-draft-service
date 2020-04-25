@@ -13,12 +13,30 @@ RSpec.describe Cube do
 		let(:color_identity) {["R"]}
 		let(:card_text) {"Deal 3 damage to any target."}
 		let(:set) {"LEB"}
-		let(:enriched_card_1) do
+		let(:card_1) do
+			{
+				:card_name => card_name,
+			  :set => set,
+			  :count => 1
+			}
+		end
+		let(:card_2) do
+			{
+				:card_name => "Watchwolf",
+			  :set => "RAV",
+			  :count => 1
+			}
+		end
+		let(:card_list) do
+			[card_1, card_2]
+		end
+		let(:bolt_status) { 200 }
+		let(:bolt_response) do
 			{
 				"name": card_name,
 				"layout": layout,
 				"image_uris": {
-			    "small": "httpblah",
+			    "small": "httpblahsmall",
 			    "normal": image
 			  },
 			  "mana_cost": mana_cost,
@@ -26,11 +44,10 @@ RSpec.describe Cube do
 			  "type_line": type_line,
 			  "oracle_text": card_text,
 			  "color_identity": color_identity,
-			  "set": set,
-			  "count": 1
+			  "set": set
 			}
 		end
-		let(:enriched_card_2) do
+		let(:watchwolf_response) do
 			{
 				"name": "Watchwolf",
 				"layout": "something",
@@ -45,15 +62,18 @@ RSpec.describe Cube do
 			  "color_identity": ["G","W"],
 			  "power": 3,
 			  "toughness": 3,
-			  "set": "rav",
-			  "count": 1
+			  "set": "RAV"
 			}
 		end
-		let(:enriched_list) do
-			[enriched_card_1.with_indifferent_access, enriched_card_2.with_indifferent_access]
+
+		before do
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Lightning+Bolt&set=LEB")
+				.to_return(status: bolt_status, body: bolt_response.to_json, headers: {})
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Watchwolf&set=RAV")
+				.to_return(status: 200, body: watchwolf_response.to_json, headers: {})
 		end
 
-		subject { cube.create_cube_cards(enriched_list) }
+		subject { cube.create_cube_cards(card_list) }
 
 		context 'no cards exist yet' do
 			it 'creates card records' do
@@ -81,6 +101,14 @@ RSpec.describe Cube do
 				expect(cube_card_ref.custom_color_identity).to be_nil
 				expect(cube_card_ref.custom_image).to be_nil
 				expect(cube_card_ref.soft_delete).to be_nil
+			end
+
+			context 'scryfall cannot find a card' do
+				let(:bolt_status) { 404 }
+
+				it 'raises error' do
+					expect{subject}.to raise_error(Cube::CreationError)
+				end
 			end
 		end
 

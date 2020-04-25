@@ -57,7 +57,7 @@ RSpec.describe Clients::Scryfall do
 				let(:status_code) {404}
 
 				it 'returns nil' do
-					expect(subject).to be_nil
+					expect{subject}.to raise_error Faraday::ResourceNotFound
 				end
 			end
 		end
