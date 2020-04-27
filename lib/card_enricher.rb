@@ -1,6 +1,3 @@
-### TODO change to CardEnricher and call from cube model
-
-
 class CardEnricher
 	def initialize(card_hash)
 		@card_hash = card_hash

@@ -5,10 +5,8 @@ RSpec.describe 'POST /login', type: :request do
   let(:url) { '/api/v1/users/login' }
   let(:params) do
     {
-      app_user: {
-        email: user.email,
-        password: user.password
-      }
+      email: user.email,
+      password: user.password
     }
   end
 
@@ -29,25 +27,13 @@ RSpec.describe 'POST /login', type: :request do
   context 'when params are incorrect' do
   	let(:params) do
   		{
-  			app_user: {
-	  			email: user.email
-	  		}
+	  		email: user.email,
+        password: "not_the_password"
 	  	}
   	end
   	it 'returns 401' do
   		subject
   		expect(response.status).to eq 401
   	end
-  end
-end
-
-RSpec.describe 'DELETE /logout', type: :request do
-  let(:url) { '/api/v1/users/logout' }
-
-  subject { delete url }
-
-  it 'returns 204, no content' do
-    subject
-    expect(response.status).to eq 204
   end
 end

@@ -1,15 +1,9 @@
 class Cube < ApplicationRecord
-	class CreationError < StandardError
-		# def initialize(message = nil, errors = nil)
-		# 	@errors = errors
-		# 	super(message)
-		# end
-	end
+	class CreationError < StandardError;end
 
 	belongs_to :user
 	has_many :cube_card
 	has_many :card, :through => :cube_card
-	mount_uploader :dck_file, DckUploader
 
 	def create_cube_cards(cube_list)
 		errors = []

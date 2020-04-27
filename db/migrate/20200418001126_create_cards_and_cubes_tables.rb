@@ -12,7 +12,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     	t.integer :toughness
     	t.string :default_image, null: false
         t.string :default_set, null: false
-        t.datetime :created_at
+        t.timestamps null: false
     end
 
     add_index :cards, :name, unique: true
@@ -25,9 +25,10 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     create_table :cubes do |t|
     	t.references :user, references: :users, foreign_key: { to_table: :users}
     	t.string :name, null: false
-    	t.datetime :created_at
-    	t.datetime :updated_at
+    	t.timestamps null: false
     end
+
+    add_index :cubes, :name
 
     create_table :cube_cards do |t|
     	t.references :cube, references: :cubes, foreign_key: { to_table: :cubes}
@@ -37,8 +38,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
         t.string :custom_image
     	t.string :custom_color_identity
         t.boolean :soft_delete
-        t.datetime :created_at
-        t.datetime :updated_at
+        t.timestamps null: false
     end
 
     add_index :cube_cards, :soft_delete

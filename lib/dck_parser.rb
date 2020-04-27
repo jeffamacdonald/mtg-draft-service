@@ -30,7 +30,7 @@ class DckParser
 	end
 
 	def split_line(line)
-		line.gsub("\n","").split(Regexp.union([' [',':','] ']))
+		line.gsub("\n","").gsub("\r","").split(Regexp.union([' [',':','] ']))
 	end
 
 	def reject_bad_records
