@@ -14,7 +14,7 @@ class Cube < ApplicationRecord
 				if enriched_card_hash.has_key? :error
 					errors << enriched_card_hash
 				else
-					card = create_card(enriched_card_hash)
+					card = Card.find_by(name: enriched_card_hash[:name]) || create_card(enriched_card_hash)
 				end
 			end
 			create_cube_card(card, card_hash)

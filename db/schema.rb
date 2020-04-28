@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_18_001126) do
+ActiveRecord::Schema.define(version: 2020_04_27_174132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(version: 2020_04_18_001126) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["card_id"], name: "index_cube_cards_on_card_id"
+    t.index ["cube_id", "card_id"], name: "index_cube_cards_on_cube_id_and_card_id", unique: true
     t.index ["cube_id"], name: "index_cube_cards_on_cube_id"
     t.index ["soft_delete"], name: "index_cube_cards_on_soft_delete"
   end

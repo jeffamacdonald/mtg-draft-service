@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe DckParser do
 	describe '#get_parsed_list' do
 		let(:line1) { '1 [LEB:123] Lightning Bolt' }
-		let(:line2) { '1 [RAV:321] Dark Confidant' }
+		let(:line2) { '1 [RAV1:321] Dark Confidant' }
 		let(:file) do
 			Tempfile.new(['test', '.dck']).tap do |f|
 				f.puts line1
@@ -30,7 +30,7 @@ RSpec.describe DckParser do
 					:card_name => "Lightning Bolt"
 				}, {
 					:count => 1,
-					:set => "RAV",
+					:set => "RAV1",
 					:card_name => "Dark Confidant"
 				}]
 			end
@@ -51,7 +51,7 @@ RSpec.describe DckParser do
 			let(:expected_array) do
 				[{
 					:count => 1,
-					:set => "RAV",
+					:set => "RAV1",
 					:card_name => "Dark Confidant"
 				}]
 			end
@@ -92,7 +92,7 @@ RSpec.describe DckParser do
 			let(:expected_array) do
 				[{
 					:count => 1,
-					:set => "RAV",
+					:set => "RAV1",
 					:card_name => "Dark Confidant"
 				}]
 			end
@@ -113,7 +113,7 @@ RSpec.describe DckParser do
 			let(:expected_array) do
 				[{
 					:count => 1,
-					:set => "RAV",
+					:set => "RAV1",
 					:card_name => "Dark Confidant"
 				}]
 			end

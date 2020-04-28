@@ -60,6 +60,38 @@ RSpec.describe Clients::Scryfall do
 					expect{subject}.to raise_error Faraday::ResourceNotFound
 				end
 			end
+
+			context 'when scryfall returns no image_uris and card_face' do
+			  let(:scryfall_response) do
+			    {
+			      "name": "Lightning Bolt",
+			      "layout": "transform",
+			      "card_faces": [image_uris],
+			      "mana_cost": "{4}{W}{W}",
+			      "cmc": 6,
+			      "type_line": "Sorcery",
+			      "oracle_text": "Deal 3 damage to any target.",
+			      "colors": ["W"],
+			      "foo": "bar",
+			      "color_identity": ["W"],
+			      "power": 1,
+			      "toughness": 1,
+			      "set": "leb"
+			    }
+			  end
+			  let(:image_uris) do
+			  	{
+	          "image_uris": {
+	          	"small": "httpblah",
+	          	"normal": "httpblah"
+	        	}
+	      	}
+			  end
+
+			  it 'sets image_uris with card_faces uris' do
+			    expect(subject).to eq expected_response.merge(image_uris).with_indifferent_access
+			  end
+			end
 		end
 
 		context 'when params contain both name and set' do

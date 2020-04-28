@@ -51,7 +51,7 @@ class DckParser
 	end
 
 	def validate_set(set, card_name)
-		if set.length != 3
+		if !set.length.between?(3,4)
 			@errors << {
 				:card_name => "#{card_name}",
 				:error => "Set Invalid"

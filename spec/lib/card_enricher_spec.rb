@@ -20,7 +20,10 @@ RSpec.describe CardEnricher do
 			{
 				"name": "shock",
 				"layout": "something",
-				"cmc": 1
+				"cmc": 1,
+				"image_uris": {
+					"normal": "image"
+				}
 			}
 		end
 		let(:status) { 200 }
