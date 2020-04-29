@@ -27,8 +27,22 @@ RSpec.describe Cube do
 			  :count => 1
 			}
 		end
+		let(:card_3) do
+			{
+				:card_name => "Tundra",
+			  :set => "LEB",
+			  :count => 1
+			}
+		end
+		let(:card_4) do
+			{
+				:card_name => "Ensnaring Bridge",
+			  :set => "SGH",
+			  :count => 1
+			}
+		end
 		let(:card_list) do
-			[card_1, card_2]
+			[card_1, card_2, card_3, card_4]
 		end
 		let(:bolt_status) { 200 }
 		let(:bolt_response) do
@@ -65,12 +79,48 @@ RSpec.describe Cube do
 			  "set": "RAV"
 			}
 		end
+		let(:tundra_response) do
+			{
+				"name": "Tundra",
+				"layout": "normal",
+				"image_uris": {
+			    "small": "httpblahsmall",
+			    "normal": "something"
+			  },
+			  "mana_cost": "",
+			  "cmc": 0,
+			  "type_line": "Land",
+			  "oracle_text": "something",
+			  "color_identity": "UW",
+			  "set": "LEB"
+			}
+		end
+		let(:bridge_response) do
+			{
+				"name": "Ensnaring Bridge",
+				"layout": "normal",
+				"image_uris": {
+			    "small": "httpblahsmall",
+			    "normal": "image"
+			  },
+			  "mana_cost": "{3}",
+			  "cmc": 3,
+			  "type_line": "Artifact",
+			  "oracle_text": "card_text",
+			  "color_identity": "",
+			  "set": "SGH"
+			}
+		end
 
 		before do
 			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Lightning+Bolt&set=LEB")
 				.to_return(status: bolt_status, body: bolt_response.to_json, headers: {})
 			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Watchwolf&set=RAV")
 				.to_return(status: 200, body: watchwolf_response.to_json, headers: {})
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Tundra&set=LEB")
+				.to_return(status: 200, body: tundra_response.to_json, headers: {})
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Ensnaring+Bridge&set=SGH")
+				.to_return(status: 200, body: bridge_response.to_json, headers: {})
 		end
 
 		subject { cube.create_cube_cards(card_list) }
@@ -78,7 +128,7 @@ RSpec.describe Cube do
 		context 'no cards exist yet' do
 			it 'creates card records' do
 				subject
-				expect(Card.all.count).to eq 2
+				expect(Card.all.count).to eq 4
 				lightning_bolt = Card.find_by(name: card_name)
 				expect(lightning_bolt.layout).to eq layout
 				expect(lightning_bolt.default_image).to eq image
@@ -88,19 +138,21 @@ RSpec.describe Cube do
 				expect(lightning_bolt.card_text).to eq card_text
 				expect(lightning_bolt.color_identity).to eq color_identity.join
 				expect(lightning_bolt.default_set).to eq set
+				expect(Card.find_by(name: "Tundra").color_identity).to eq "C"
+				expect(Card.find_by(name: "Ensnaring Bridge").color_identity).to eq "C"
 			end
 
 			it 'creates cube card records' do
 				subject
-				expect(CubeCard.all.count).to eq 2
+				expect(CubeCard.all.count).to eq 4
 				card_id = Card.find_by(name: card_name).id
 				cube_card_ref = CubeCard.find_by(card_id: card_id)
 				expect(cube_card_ref.cube_id).to eq cube.id
 				expect(cube_card_ref.count).to eq 1
 				expect(cube_card_ref.custom_set).to eq set
-				expect(cube_card_ref.custom_color_identity).to be_nil
-				expect(cube_card_ref.custom_image).to be_nil
-				expect(cube_card_ref.soft_delete).to be_nil
+				expect(cube_card_ref.custom_color_identity).to eq color_identity.join
+				expect(cube_card_ref.custom_image).to eq image
+				expect(cube_card_ref.soft_delete).to eq false
 			end
 
 			context 'scryfall cannot find a card' do
@@ -117,12 +169,12 @@ RSpec.describe Cube do
 
 			it 'does not create a new card record' do
 				subject
-				expect(Card.all.count).to eq 2
+				expect(Card.all.count).to eq 4
 			end
 
 			it 'creates cube card records' do
 				subject
-				expect(CubeCard.all.count).to eq 2
+				expect(CubeCard.all.count).to eq 4
 			end
 		end
 
@@ -168,6 +220,38 @@ RSpec.describe Cube do
 					expect(cube_card_ref.custom_image).to eq custom_image_2
 				end
 			end
+		end
+	end
+
+	describe '#display_cube' do
+		let!(:cube) { create :cube }
+		let!(:card_1) { create :card, converted_mana_cost: 4, color_identity: 'B' }
+		let!(:card_2) { create :card, converted_mana_cost: 0, color_identity: 'C' }
+		let!(:card_3) { create :card, converted_mana_cost: 3, color_identity: 'C' }
+		let!(:card_4) { create :card, converted_mana_cost: 2, color_identity: 'C' }
+		let!(:card_5) { create :card, converted_mana_cost: 5, color_identity: 'UG' }
+		let!(:card_6) { create :card, converted_mana_cost: 4, color_identity: 'UG' }
+		let!(:cube_card_1) { create :cube_card, cube_id: cube.id, card_id: card_1.id, custom_color_identity: 'B', soft_delete: true }
+		let!(:cube_card_2) { create :cube_card, cube_id: cube.id, card_id: card_2.id, custom_color_identity: 'C' }
+		let!(:cube_card_3) { create :cube_card, cube_id: cube.id, card_id: card_3.id, custom_color_identity: 'C' }
+		let!(:cube_card_4) { create :cube_card, cube_id: cube.id, card_id: card_4.id, custom_color_identity: 'R' }
+		let!(:cube_card_5) { create :cube_card, cube_id: cube.id, card_id: card_5.id, custom_color_identity: 'UG' }
+		let!(:cube_card_6) { create :cube_card, cube_id: cube.id, card_id: card_6.id, custom_color_identity: 'UG' }
+		let(:colorless_cards) { [cube_card_2,cube_card_3] }
+		let(:red_cards) { [cube_card_4] }
+		let(:gold_cards) { [cube_card_6,cube_card_5] }
+		let(:expected_response) do
+			{
+				"C" => colorless_cards,
+				"R" => red_cards,
+				"UG" => gold_cards
+			}
+		end
+
+		subject { cube.display_cube }
+
+		it 'returns active, sorted, chunked, and hashed' do
+			expect(subject).to eq expected_response
 		end
 	end
 end

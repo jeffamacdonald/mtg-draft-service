@@ -37,11 +37,12 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     	t.string :custom_set
         t.string :custom_image
     	t.string :custom_color_identity
-        t.boolean :soft_delete
+        t.boolean :soft_delete, null: false
         t.timestamps null: false
     end
 
     add_index :cube_cards, :soft_delete
+    add_index :cube_cards, :custom_color_identity
     add_index :cube_cards, [:cube_id, :card_id], unique: true
   end
 

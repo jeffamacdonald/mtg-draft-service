@@ -7,5 +7,6 @@ FactoryBot.define do
 		cube_id { cube.id }
 		card_id { card.id }
 		count {1}
+		soft_delete {false}
 	end
 end

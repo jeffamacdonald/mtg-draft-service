@@ -5,13 +5,12 @@ class Draft < ApplicationRecord
 
 	def create_participants(user_ids)
 		users = User.find(user_ids)
-		draft_position = 0
-		draft_participant_hashes = users.shuffle.map do |user|
+		draft_participant_hashes = users.shuffle.map.with_index do |user, idx|
 			{
 				:draft_id => self.id,
 				:user_id => user.id,
 				:display_name => user.username,
-				:draft_position => draft_position += 1,
+				:draft_position => idx + 1,
 				:created_at => Time.now,
 				:updated_at => Time.now
 			}

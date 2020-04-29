@@ -48,6 +48,7 @@ RSpec.describe 'Setup Requests' do
 					subject
 					expect(Draft.all.count).to eq 1
 					expect(Draft.first.users).to eq [user1, user2]
+					expect(Draft.first.active_status).to eq true
 				end
 			end
 

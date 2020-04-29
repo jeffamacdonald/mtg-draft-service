@@ -180,7 +180,7 @@ RSpec.describe 'Cubes Requests' do
 		end
 	end
 
-	describe 'POST /import' do
+	describe 'POST /import', type: :request do
 		let(:url) { "/api/v1/users/cubes/import" }
 		let(:file) do
 			fixture_file_upload('files/success.dck')

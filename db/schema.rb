@@ -44,12 +44,13 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
     t.string "custom_set"
     t.string "custom_image"
     t.string "custom_color_identity"
-    t.boolean "soft_delete"
+    t.boolean "soft_delete", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["card_id"], name: "index_cube_cards_on_card_id"
     t.index ["cube_id", "card_id"], name: "index_cube_cards_on_cube_id_and_card_id", unique: true
     t.index ["cube_id"], name: "index_cube_cards_on_cube_id"
+    t.index ["custom_color_identity"], name: "index_cube_cards_on_custom_color_identity"
     t.index ["soft_delete"], name: "index_cube_cards_on_soft_delete"
   end
 

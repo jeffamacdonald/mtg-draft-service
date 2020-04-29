@@ -22,6 +22,15 @@ module Users
 			resource :users do
 				resource :cubes do
 
+					desc 'get all cube cards by id'
+					params do
+						requires :cube_id, type: Integer
+					end
+					get 'id/:cube_id' do
+						cube = Cube.find(params[:cube_id])
+						cube.display_cube
+					end
+
 					desc 'Create a cube from JSON list'
 					params do
 						requires :name, type: String
