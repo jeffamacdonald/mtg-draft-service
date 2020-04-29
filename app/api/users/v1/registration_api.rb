@@ -19,11 +19,9 @@ module Users
 					begin
 				    User.create!(params).display_user
 				  rescue ActiveRecord::RecordNotUnique => ex
-				  	status :unprocessable_entity
-				  	{"message": "User already exists"}
+				  	error!('User already exists', :unprocessable_entity)
 				  rescue ActiveRecord::RecordInvalid => ex
-				  	status :bad_request
-				  	{"error": ex.message}
+				  	error!(ex.message, :bad_request)
 				  end
 				end
 

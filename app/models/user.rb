@@ -7,6 +7,6 @@ class User < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
   def display_user
-  	{:email => email, :username => username, :phone => phone}
+  	{:id => id, :email => email, :username => username, :phone => phone}
   end
 end

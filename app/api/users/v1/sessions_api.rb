@@ -16,9 +16,10 @@ module Users
     			if user && user.authenticate(params[:password])
     				header 'Authorization', "Bearer #{JsonWebToken.encode(user_id: user.id)}"
     				status 200
-    				return user
+    				user.display_user
+    			else
+    				error!('Invalid Credentials', 401)
     			end
-    			error!('Invalid Credentials', 401)
 				end
 			end
 		end

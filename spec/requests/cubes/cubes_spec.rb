@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe 'Cubes Requests' do
+	let(:user) { create :user }
+	let(:decoded_token) do
+		{:user_id => user.id}
+	end
 	let(:bolt_status) { 200 }
 	let(:bolt_response) do
 		{
@@ -48,8 +52,105 @@ RSpec.describe 'Cubes Requests' do
 			.to_return(status: 404, body: {}.to_json, headers: {})
 	end
 
+	describe 'GET /' do
+		let(:url) { "/api/v1/cubes" }
+		let!(:cube1) { create :cube }
+		let!(:cube2) { create :cube }
+		let!(:cube3) { create :cube }
+
+		subject { get url }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			let(:expected_response) { [cube1,cube2,cube3] }
+
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			it 'returns 200' do
+				subject
+				expect(response.status).to eq 200
+			end
+
+			it 'returns expected response body' do
+				subject
+				expect(response.body).to eq expected_response.to_json
+			end
+		end
+	end
+
+	describe 'GET /id' do
+		let(:url) { "/api/v1/cubes/id/#{cube_id}" }
+		let!(:cube) { create :cube }
+		let!(:card_1) { create :card, converted_mana_cost: 4, color_identity: 'B' }
+		let!(:card_2) { create :card, converted_mana_cost: 0, color_identity: 'C' }
+		let!(:card_3) { create :card, converted_mana_cost: 3, color_identity: 'C' }
+		let!(:card_4) { create :card, converted_mana_cost: 2, color_identity: 'C' }
+		let!(:card_5) { create :card, converted_mana_cost: 5, color_identity: 'UG' }
+		let!(:card_6) { create :card, converted_mana_cost: 4, color_identity: 'UG' }
+		let!(:cube_card_1) { create :cube_card, cube_id: cube.id, card_id: card_1.id, custom_color_identity: 'B', soft_delete: true }
+		let!(:cube_card_2) { create :cube_card, cube_id: cube.id, card_id: card_2.id, custom_color_identity: 'C' }
+		let!(:cube_card_3) { create :cube_card, cube_id: cube.id, card_id: card_3.id, custom_color_identity: 'C' }
+		let!(:cube_card_4) { create :cube_card, cube_id: cube.id, card_id: card_4.id, custom_color_identity: 'R' }
+		let!(:cube_card_5) { create :cube_card, cube_id: cube.id, card_id: card_5.id, custom_color_identity: 'UG' }
+		let!(:cube_card_6) { create :cube_card, cube_id: cube.id, card_id: card_6.id, custom_color_identity: 'UG' }
+		let(:cube_id) { cube.id }
+
+		subject { get url }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			let(:colorless_cards) { [cube_card_2,cube_card_3] }
+			let(:red_cards) { [cube_card_4] }
+			let(:gold_cards) { [cube_card_6,cube_card_5] }
+			let(:expected_response) do
+				{
+					"C" => colorless_cards,
+					"R" => red_cards,
+					"UG" => gold_cards
+				}
+			end
+
+			it 'returns 200' do
+				subject
+				expect(response.status).to eq 200
+			end
+
+			it 'returns expected response body' do
+				subject
+				expect(response.body).to eq expected_response.to_json
+			end
+
+			context 'when cube does not exist' do
+				let(:cube_id) { 100 }
+
+				it 'returns 404' do
+					subject
+					expect(response.status).to eq 404
+				end
+			end
+		end
+	end
+
 	describe 'POST /create', type: :request do
-		let(:url) { "/api/v1/users/cubes/create" }
+		let(:url) { "/api/v1/cubes/create" }
 		let(:params) do
 			{
 				name: "my cube",
@@ -77,11 +178,6 @@ RSpec.describe 'Cubes Requests' do
 		end
 
 		context 'when user is signed in' do
-			let(:user) { create :user }
-			let(:decoded_token) do
-				{:user_id => user.id}
-			end
-
 			before do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
@@ -103,7 +199,7 @@ RSpec.describe 'Cubes Requests' do
 				let(:bolt_status) { 404 }
 				let(:expected_body) do
 					{
-						"message": [{
+						"error": [{
 							"card_name": "Lightning Bolt",
 							"error": "Invalid Card Name or Card Not Found in Set"
 						}]
@@ -115,7 +211,7 @@ RSpec.describe 'Cubes Requests' do
 					expect(response.status).to eq 422
 				end
 
-				it 'returns errors in message' do
+				it 'returns errors in body' do
 					subject
 					expect(response.body).to eq expected_body.to_json
 				end
@@ -181,7 +277,7 @@ RSpec.describe 'Cubes Requests' do
 	end
 
 	describe 'POST /import', type: :request do
-		let(:url) { "/api/v1/users/cubes/import" }
+		let(:url) { "/api/v1/cubes/import" }
 		let(:file) do
 			fixture_file_upload('files/success.dck')
 		end
@@ -202,11 +298,6 @@ RSpec.describe 'Cubes Requests' do
 		end
 
 		context 'when user is signed in' do
-			let(:user) { create :user }
-			let(:decoded_token) do
-				{:user_id => user.id}
-			end
-
 			before do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
@@ -233,7 +324,7 @@ RSpec.describe 'Cubes Requests' do
 				end
 				let(:expected_errors) do
 					{
-						:message => [{:card_name => "Lightning Bolt",:error => "Count Invalid"},
+						:error => [{:card_name => "Lightning Bolt",:error => "Count Invalid"},
 							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
 					}
 				end
@@ -243,7 +334,7 @@ RSpec.describe 'Cubes Requests' do
 					expect(response.status).to eq 422
 				end
 
-				it 'message contains errors' do
+				it 'body contains errors' do
 					subject
 					expect(response.body).to eq expected_errors.to_json
 				end
@@ -255,7 +346,7 @@ RSpec.describe 'Cubes Requests' do
 				end
 				let(:expected_errors) do
 					{
-						:message => [{:card_name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
+						:error => [{:card_name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
 							{:card_name => "Lightning Bolt",:error => "Count Invalid"},
 							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
 					}
@@ -266,7 +357,7 @@ RSpec.describe 'Cubes Requests' do
 					expect(response.status).to eq 422
 				end
 
-				it 'message contains errors' do
+				it 'body contains errors' do
 					subject
 					expect(response.body).to eq expected_errors.to_json
 				end

@@ -35,6 +35,11 @@ RSpec.describe 'POST /register', type: :request do
 
   context 'when user already exists' do
     let!(:user) { create :user, email: params[:email] }
+    let(:expected_response) do
+      {
+        "error" => 'User already exists'
+      }
+    end
 
     it 'returns unprocessable entity status' do
       subject
@@ -43,12 +48,17 @@ RSpec.describe 'POST /register', type: :request do
 
     it 'returns validation errors' do
       subject
-      expect(JSON.parse(response.body)['message']).to eq('User already exists')
+      expect(response.body).to eq expected_response.to_json
     end
   end
 
   context 'when email fails validation' do
     let(:email) { "example.com" }
+    let(:expected_response) do
+      {
+        "error" => 'Validation failed: Email is invalid'
+      }
+    end
 
     it 'returns bad request status' do
       subject
@@ -57,7 +67,7 @@ RSpec.describe 'POST /register', type: :request do
 
     it 'returns validation errors' do
       subject
-      expect(JSON.parse(response.body)['error']).to eq('Validation failed: Email is invalid')
+      expect(response.body).to eq expected_response.to_json
     end
   end
 end

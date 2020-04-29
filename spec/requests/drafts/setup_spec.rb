@@ -54,7 +54,7 @@ RSpec.describe 'Setup Requests' do
 
 			context 'when user id does not exist' do
 				let(:user_ids) { [user1.id,user2.id,100] }
-				let(:expected_error) { { "message": "Invalid Draft Participants" } }
+				let(:expected_error) { { "error": "Invalid Draft Participants" } }
 
 				it 'returns 400' do
 					subject

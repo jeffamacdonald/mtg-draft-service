@@ -7,7 +7,7 @@ RSpec.describe User do
 		let(:username) { "something_clever" }
 		let(:user) { create :user, email: email, phone: phone, username: username }
 		let(:expected_response) do
-			{:email => email, :phone => phone, :username => username}
+			{:id => user.id, :email => email, :phone => phone, :username => username}
 		end
 
 		subject { user.display_user }

@@ -31,8 +31,7 @@ module Drafts
 						end
 						{ 'message': 'success' }
 					rescue ActiveRecord::RecordNotFound => ex
-						status :bad_request
-						{ "message": "Invalid Draft Participants" }
+						error!('Invalid Draft Participants', :bad_request)
 					end
 				end
 			end
