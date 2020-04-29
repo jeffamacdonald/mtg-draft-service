@@ -2,8 +2,8 @@ class Cube < ApplicationRecord
 	class CreationError < StandardError;end
 
 	belongs_to :user
-	has_many :cube_card
-	has_many :card, :through => :cube_card
+	has_many :cube_cards
+	has_many :cards, :through => :cube_cards
 
 	def create_cube_cards(cube_list)
 		errors = []

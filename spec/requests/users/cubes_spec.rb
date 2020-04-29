@@ -235,7 +235,7 @@ RSpec.describe 'Cubes Requests' do
 					{
 						:message => [{:card_name => "Lightning Bolt",:error => "Count Invalid"},
 							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
-					}.with_indifferent_access
+					}
 				end
 
 				it 'returns 422' do
@@ -245,7 +245,7 @@ RSpec.describe 'Cubes Requests' do
 
 				it 'message contains errors' do
 					subject
-					expect(JSON.parse(response.body)).to eq expected_errors
+					expect(response.body).to eq expected_errors.to_json
 				end
 			end
 
@@ -258,7 +258,7 @@ RSpec.describe 'Cubes Requests' do
 						:message => [{:card_name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
 							{:card_name => "Lightning Bolt",:error => "Count Invalid"},
 							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
-					}.with_indifferent_access
+					}
 				end
 
 				it 'returns 422' do
@@ -268,7 +268,7 @@ RSpec.describe 'Cubes Requests' do
 
 				it 'message contains errors' do
 					subject
-					expect(JSON.parse(response.body)).to eq expected_errors
+					expect(response.body).to eq expected_errors.to_json
 				end
 			end
 		end

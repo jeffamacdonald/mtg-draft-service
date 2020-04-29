@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_27_174132) do
+ActiveRecord::Schema.define(version: 2020_04_28_170323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,9 +62,47 @@ ActiveRecord::Schema.define(version: 2020_04_27_174132) do
     t.index ["user_id"], name: "index_cubes_on_user_id"
   end
 
+  create_table "draft_participants", force: :cascade do |t|
+    t.bigint "draft_id"
+    t.bigint "user_id"
+    t.string "display_name"
+    t.integer "draft_position"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["draft_id", "draft_position"], name: "index_draft_participants_on_draft_id_and_draft_position", unique: true
+    t.index ["draft_id", "user_id"], name: "index_draft_participants_on_draft_id_and_user_id", unique: true
+    t.index ["draft_id"], name: "index_draft_participants_on_draft_id"
+    t.index ["user_id"], name: "index_draft_participants_on_user_id"
+  end
+
+  create_table "drafts", force: :cascade do |t|
+    t.bigint "cube_id"
+    t.string "name", null: false
+    t.boolean "active_status", null: false
+    t.integer "rounds", null: false
+    t.integer "timer_minutes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["active_status"], name: "index_drafts_on_active_status"
+    t.index ["cube_id"], name: "index_drafts_on_cube_id"
+    t.index ["name"], name: "index_drafts_on_name"
+  end
+
   create_table "jwt_blacklist", force: :cascade do |t|
     t.string "jti", null: false
     t.index ["jti"], name: "index_jwt_blacklist_on_jti"
+  end
+
+  create_table "participant_picks", force: :cascade do |t|
+    t.bigint "draft_participant_id"
+    t.bigint "card_id"
+    t.integer "pick_number", null: false
+    t.integer "round", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["card_id"], name: "index_participant_picks_on_card_id"
+    t.index ["draft_participant_id"], name: "index_participant_picks_on_draft_participant_id"
+    t.index ["round"], name: "index_participant_picks_on_round"
   end
 
   create_table "users", force: :cascade do |t|
@@ -81,4 +119,9 @@ ActiveRecord::Schema.define(version: 2020_04_27_174132) do
   add_foreign_key "cube_cards", "cards"
   add_foreign_key "cube_cards", "cubes"
   add_foreign_key "cubes", "users"
+  add_foreign_key "draft_participants", "drafts"
+  add_foreign_key "draft_participants", "users"
+  add_foreign_key "drafts", "cubes"
+  add_foreign_key "participant_picks", "cards"
+  add_foreign_key "participant_picks", "draft_participants"
 end

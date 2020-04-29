@@ -42,6 +42,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     end
 
     add_index :cube_cards, :soft_delete
+    add_index :cube_cards, [:cube_id, :card_id], unique: true
   end
 
   def down
