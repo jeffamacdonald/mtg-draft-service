@@ -4,8 +4,10 @@ module Users
 			version 'v1'
 			prefix :api
 			format :json
+			helpers AuthHelper
 
 			resource :users do
+
 				desc 'log in a user with JWT'
 				params do
 					requires :email, type: String
@@ -20,6 +22,13 @@ module Users
     			else
     				error!('Invalid Credentials', 401)
     			end
+				end
+
+				desc 'log out a user'
+				post 'logout' do
+					set_authenticated_user
+					JwtBlacklist.create(jti: decoded_auth_token[:jti])
+					body false
 				end
 			end
 		end

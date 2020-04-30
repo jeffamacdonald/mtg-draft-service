@@ -2,8 +2,11 @@ module AuthHelper
 	extend Grape::API::Helpers
 
 	def auth_check
-		return User.find(decoded_auth_token[:user_id]) if decoded_auth_token
-		error!('Forbidden', 403)
+		if decoded_auth_token && JwtBlacklist.find_by(jti: decoded_auth_token[:jti]).nil?
+			User.find(decoded_auth_token[:user_id])
+		else
+			error!('Forbidden', 403)
+		end
 	end
 
 	def set_authenticated_user

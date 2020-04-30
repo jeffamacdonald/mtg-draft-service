@@ -12,6 +12,7 @@ RSpec.describe JsonWebToken do
 		it 'returns a jwt with expected payload' do
 			decoded_output = JWT.decode(subject, Rails.application.secrets.secret_key_base)[0]
 			expect(decoded_output).to have_key("user_id")
+			expect(decoded_output).to have_key("jti")
 			expect(decoded_output).to have_key("exp")
 		end
 	end
