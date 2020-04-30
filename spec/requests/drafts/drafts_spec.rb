@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Setup Requests' do
+RSpec.describe 'Drafts Requests' do
 	describe 'POST /create', type: :request do
 		let(:url) { '/api/v1/drafts/create' }
 		let(:name) { "Test Draft" }
@@ -64,6 +64,51 @@ RSpec.describe 'Setup Requests' do
 				it 'returns error message' do
 					subject
 					expect(response.body).to eq expected_error.to_json
+				end
+			end
+		end
+	end
+
+	describe 'POST /:draft_id', type: :request do
+		let(:url) { "/api/v1/drafts/#{draft_id}" }
+		let(:draft) { create :draft }
+		let(:draft_id) { draft.id }
+
+		subject { get url }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			let(:user) { create :user }
+			let(:decoded_token) do
+				{:user_id => user.id}
+			end
+
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			it 'returns 200' do
+				subject
+				expect(response.status).to eq 200
+			end
+
+			it 'returns expected response body' do
+				subject
+				expect(response.body).to eq draft.to_json
+			end
+
+			context 'when draft does not exist' do
+				let(:draft_id) { 100 }
+
+				it 'returns 404' do
+					subject
+					expect(response.status).to eq 404
 				end
 			end
 		end

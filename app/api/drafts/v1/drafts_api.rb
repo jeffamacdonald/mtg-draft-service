@@ -1,6 +1,6 @@
 module Drafts
 	module V1
-		class SetupAPI < Grape::API
+		class DraftsAPI < Grape::API
 			version 'v1'
 			prefix :api
 			format :json
@@ -11,6 +11,19 @@ module Drafts
 			end
 
 			resources :drafts do
+
+				desc 'get draft by id'
+				params do
+					requires :draft_id, type: Integer
+				end
+				get ':draft_id' do
+					begin
+						Draft.find(params[:draft_id])
+					rescue ActiveRecord::RecordNotFound => ex
+						error!(ex.message, :not_found)
+					end
+				end
+
 				desc 'create draft and draft participants'
 				params do
 					requires :name, type: String

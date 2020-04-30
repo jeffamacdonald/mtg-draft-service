@@ -30,7 +30,7 @@ module Cubes
 				params do
 					requires :cube_id, type: Integer
 				end
-				get 'id/:cube_id' do
+				get ':cube_id' do
 					begin
 						cube = Cube.find(params[:cube_id])
 						cube.display_cube

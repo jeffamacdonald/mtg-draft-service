@@ -87,7 +87,7 @@ RSpec.describe 'Cubes Requests' do
 	end
 
 	describe 'GET /id' do
-		let(:url) { "/api/v1/cubes/id/#{cube_id}" }
+		let(:url) { "/api/v1/cubes/#{cube_id}" }
 		let!(:cube) { create :cube }
 		let!(:card_1) { create :card, converted_mana_cost: 4, color_identity: 'B' }
 		let!(:card_2) { create :card, converted_mana_cost: 0, color_identity: 'C' }
