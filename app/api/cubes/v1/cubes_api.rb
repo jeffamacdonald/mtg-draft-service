@@ -6,8 +6,8 @@ module Cubes
 			format :json
 			helpers AuthHelper
 			helpers do
-				def cube
-					@cube ||= Cube.create!(user_id: @user.id, name: params[:name])
+				def create_cube
+					Cube.create!(user_id: @user.id, name: params[:name])
 				end
 
 				def parsed_dck_file
@@ -44,14 +44,14 @@ module Cubes
 					requires :name, type: String
 					requires :cube_list, type: Array do
 						requires :count, type: Integer
-						requires :card_name, type: String
+						requires :name, type: String
 						optional :set, type: String
 					end
 				end
 				post 'create' do
 					begin
 						ActiveRecord::Base.transaction do
-							cube.create_cube_cards(params[:cube_list])
+							create_cube.create_cube_cards(params[:cube_list])
 						end
 						{"message": "success"}
 					rescue Cube::CreationError => ex
@@ -68,9 +68,8 @@ module Cubes
 					errors = []
 					begin
 						ActiveRecord::Base.transaction do
-							cube = Cube.create!(user_id: @user.id, name: params[:name])
 							cube_list, errors = parsed_dck_file
-							cube.create_cube_cards(cube_list)
+							create_cube.create_cube_cards(cube_list)
 						end
 						if errors.empty?
 							{"message": "success"}

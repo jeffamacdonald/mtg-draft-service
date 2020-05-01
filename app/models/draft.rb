@@ -7,7 +7,7 @@ class Draft < ApplicationRecord
 		users = User.find(user_ids)
 		draft_participant_hashes = users.shuffle.map.with_index do |user, idx|
 			{
-				:draft_id => self.id,
+				:draft_id => id,
 				:user_id => user.id,
 				:display_name => user.username,
 				:draft_position => idx + 1,

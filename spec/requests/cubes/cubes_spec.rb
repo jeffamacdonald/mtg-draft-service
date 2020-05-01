@@ -158,11 +158,11 @@ RSpec.describe 'Cubes Requests' do
 					{
 						count: 1,
 						set: 'LEB',
-						card_name: 'Lightning Bolt'
+						name: 'Lightning Bolt'
 					}, {
 						count: 1,
 						set: 'RAV',
-						card_name: 'Dark Confidant'
+						name: 'Dark Confidant'
 					}
 				]
 			}
@@ -200,7 +200,7 @@ RSpec.describe 'Cubes Requests' do
 				let(:expected_body) do
 					{
 						"error": [{
-							"card_name": "Lightning Bolt",
+							"name": "Lightning Bolt",
 							"error": "Invalid Card Name or Card Not Found in Set"
 						}]
 					}
@@ -230,7 +230,7 @@ RSpec.describe 'Cubes Requests' do
 							{
 								count: 1,
 								set: 'LEB',
-								card_name: 'Lightning Bolt'
+								name: 'Lightning Bolt'
 							}
 						]
 					}
@@ -324,8 +324,8 @@ RSpec.describe 'Cubes Requests' do
 				end
 				let(:expected_errors) do
 					{
-						:error => [{:card_name => "Lightning Bolt",:error => "Count Invalid"},
-							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
+						:error => [{:name => "Lightning Bolt",:error => "Count Invalid"},
+							{:name => "Dark Confidant",:error => "Set Invalid"}]
 					}
 				end
 
@@ -346,9 +346,9 @@ RSpec.describe 'Cubes Requests' do
 				end
 				let(:expected_errors) do
 					{
-						:error => [{:card_name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
-							{:card_name => "Lightning Bolt",:error => "Count Invalid"},
-							{:card_name => "Dark Confidant",:error => "Set Invalid"}]
+						:error => [{:name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
+							{:name => "Lightning Bolt",:error => "Count Invalid"},
+							{:name => "Dark Confidant",:error => "Set Invalid"}]
 					}
 				end
 

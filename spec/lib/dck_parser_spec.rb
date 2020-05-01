@@ -27,11 +27,11 @@ RSpec.describe DckParser do
 				[{
 					:count => 1,
 					:set => "LEB",
-					:card_name => "Lightning Bolt"
+					:name => "Lightning Bolt"
 				}, {
 					:count => 1,
 					:set => "RAV1",
-					:card_name => "Dark Confidant"
+					:name => "Dark Confidant"
 				}]
 			end
 			let(:expected_error) { [] }
@@ -52,13 +52,13 @@ RSpec.describe DckParser do
 				[{
 					:count => 1,
 					:set => "RAV1",
-					:card_name => "Dark Confidant"
+					:name => "Dark Confidant"
 				}]
 			end
 			let(:expected_error) do
 				[{
 					:error => "Count Invalid",
-					:card_name => "#{card_name}"
+					:name => "#{card_name}"
 				}]
 			end
 
@@ -73,10 +73,10 @@ RSpec.describe DckParser do
 				let(:expected_error) do
 					[{
 						:error => "Count Invalid",
-						:card_name => "#{card_name}"
+						:name => "#{card_name}"
 					}, {
 						:error => "Count Invalid",
-						:card_name => "#{card_name2}"
+						:name => "#{card_name2}"
 					}]
 				end
 
@@ -93,13 +93,13 @@ RSpec.describe DckParser do
 				[{
 					:count => 1,
 					:set => "RAV1",
-					:card_name => "Dark Confidant"
+					:name => "Dark Confidant"
 				}]
 			end
 			let(:expected_error) do
 				[{
 					:error => "Set Invalid",
-					:card_name => "#{card_name}"
+					:name => "#{card_name}"
 				}]
 			end
 
@@ -114,7 +114,7 @@ RSpec.describe DckParser do
 				[{
 					:count => 1,
 					:set => "RAV1",
-					:card_name => "Dark Confidant"
+					:name => "Dark Confidant"
 				}]
 			end
 			let(:expected_error) { [] }

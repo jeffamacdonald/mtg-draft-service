@@ -8,7 +8,7 @@ class Cube < ApplicationRecord
 	def create_cube_cards(cube_list)
 		errors = []
 		cube_list.each do |card_hash|
-			card = Card.find_by(name: card_hash[:card_name])
+			card = Card.find_by(name: card_hash[:name])
 			if card.nil?
 				enriched_card_hash = CardEnricher.new(card_hash).get_enriched_card
 				if enriched_card_hash.has_key? :error
@@ -54,7 +54,7 @@ class Cube < ApplicationRecord
 		return if card.nil?
 		custom_set = card.default_set != card_hash[:set] ? card_hash[:set] : nil
 		CubeCard.create! do |cube_card|
-			cube_card.cube_id = self.id
+			cube_card.cube_id = id
 			cube_card.card_id = card.id
 			cube_card.count = card_hash[:count]
 			cube_card.custom_set = card_hash[:set]
@@ -79,7 +79,7 @@ class Cube < ApplicationRecord
 	end
 
 	def get_active_cube_cards_ordered
-		self.cube_cards.joins(:card)
+		cube_cards.joins(:card)
 			.where(soft_delete: false)
 			.order(:custom_color_identity, :converted_mana_cost)
 	end

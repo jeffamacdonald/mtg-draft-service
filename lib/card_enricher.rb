@@ -4,7 +4,7 @@ class CardEnricher
 	end
 
 	def get_enriched_card
-		scryfall_hash = scryfall_card(@card_hash[:card_name], @card_hash[:set])
+		scryfall_hash = scryfall_card(@card_hash[:name], @card_hash[:set])
 		return scryfall_hash if scryfall_hash.has_key? :error
 		scryfall_hash.merge({
 			"count" => @card_hash[:count],
@@ -20,7 +20,7 @@ class CardEnricher
 		rescue Faraday::ResourceNotFound
 			appended_set_message = set.nil? ? "" : " or Card Not Found in Set"
 			{
-				:card_name => @card_hash[:card_name],
+				:name => @card_hash[:name],
 				:error => "Invalid Card Name" + appended_set_message
 			}
 		end

@@ -4,7 +4,7 @@ RSpec.describe CardEnricher do
 	describe '#get_enriched_card' do
 		let(:card) do
 			{
-				"card_name": "Shock",
+				"name": "Shock",
 				"set": set
 			}.merge(user_provided_params)
 		end
@@ -48,7 +48,7 @@ RSpec.describe CardEnricher do
 			let(:set_error) { " or Card Not Found in Set" }
 			let(:expected_response) do
 				{
-					:card_name => "Shock",
+					:name => "Shock",
 					:error => "Invalid Card Name" + set_error
 				}
 			end

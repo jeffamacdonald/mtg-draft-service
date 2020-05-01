@@ -15,12 +15,12 @@ class DckParser
 
 	def map_to_hash_array
 		File.open(@dck_file).each do |line|
-			count, set, num, card_name = split_line(line)
-			unless [count, set, card_name].any? { |item| item.nil? }
+			count, set, num, name = split_line(line)
+			unless [count, set, name].any? { |item| item.nil? }
 				@hash_array << {
 					:count => count.to_i,
 					:set => set,
-					:card_name => card_name
+					:name => name
 				}
 			else
 				raise ParseError.new("Malformed File")
@@ -35,25 +35,25 @@ class DckParser
 
 	def reject_bad_records
 		@hash_array.reject do |item|
-			item[:card_name].strip.empty? ||
-			!validate_count(item[:count], item[:card_name]).nil? ||
-			!validate_set(item[:set], item[:card_name]).nil?
+			item[:name].strip.empty? ||
+			!validate_count(item[:count], item[:name]).nil? ||
+			!validate_set(item[:set], item[:name]).nil?
 		end
 	end
 
-	def validate_count(count, card_name)
+	def validate_count(count, name)
 		if count < 1
 			@errors << {
-				:card_name => "#{card_name}",
+				:name => "#{name}",
 				:error => "Count Invalid"
 			}
 		end
 	end
 
-	def validate_set(set, card_name)
+	def validate_set(set, name)
 		if !set.length.between?(3,4)
 			@errors << {
-				:card_name => "#{card_name}",
+				:name => "#{name}",
 				:error => "Set Invalid"
 			}
 		end

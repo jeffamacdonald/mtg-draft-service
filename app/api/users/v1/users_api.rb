@@ -25,7 +25,9 @@ module Users
 					end
 
 					desc 'get all drafts for authenticated user'
-					#TODO
+					get 'drafts' do
+						@user.display_drafts
+					end
 				end
 
 			end

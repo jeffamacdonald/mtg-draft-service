@@ -106,4 +106,93 @@ RSpec.describe Clients::Scryfall do
 			end
 		end
 	end
+
+	describe '#get_card_list' do
+		let(:bolt_card_hash) do
+			{
+				"name": "Lightning Bolt",
+				"layout": "something",
+				"image_uris": {
+			    "small": "httpblah",
+			    "normal": "httpblah"
+			  }.stringify_keys,
+			  "mana_cost": "{R}",
+			  "cmc": 1,
+			  "type_line": "Instant",
+			  "oracle_text": "Deal 3 damage to any target.",
+			  "color_identity": ["R"],
+			  "set": "LEB"
+			}
+		end
+		let(:bob_card_hash) do
+			{
+				"name": "Dark Confidant",
+				"layout": "normal",
+				"image_uris": {
+			    "small": "httpblahsmall",
+			    "normal": "httpblahnormal"
+			  }.stringify_keys,
+			  "mana_cost": "{1}{B}",
+			  "cmc": 2,
+			  "type_line": "Creature - Human Wizard",
+			  "oracle_text": "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its converted mana cost.",
+			  "colors": ["B"],
+			  "color_identity": ["B"],
+			  "foo": "bar",
+			  "power": 2,
+			  "toughness": 1,
+			  "set": "RAV"
+			}
+		end
+		let(:scryfall_response) do
+			{
+				"not_found": [bad_query_data],
+				"data": [bolt_card_hash,bob_card_hash]
+			}
+		end
+		let!(:scryfall_stub) do
+			stub_request(:post, "#{described_class::BASE_URL}/cards/collection").with(body: params)
+				.to_return(status: 200, body: scryfall_response.to_json, headers: {})
+		end
+		let(:bolt) do
+			{
+				"name": "Lightning bolt",
+				"set": "LEB"
+			}
+		end
+		let(:bob) do
+			{
+				"name": "Dark Confidant",
+				"set": "RAV"
+			}
+		end
+		let(:bad_query_data) do
+			{
+				"name": "Some Garbage",
+				"set": "LEB"
+			}
+		end
+		let(:params) do
+			{
+				"identifiers": [bolt, bob, bad_query_data]
+			}
+		end
+		let(:cube_list) do
+			[bolt, bob, bad_query_data].map {|card| card.merge({"count": 1})}
+		end
+		let(:expected_response) do
+			[[bad_query_data.stringify_keys],[bolt_card_hash.stringify_keys,bob_card_hash.select {|k,_| described_class::CARD_FIELDS.include? k.to_s }.stringify_keys]]
+		end
+
+		subject { described_class.new.get_card_list(cube_list) }
+
+		it 'calls scryfall stub with expected params' do
+			subject
+			expect(scryfall_stub).to have_been_requested
+		end
+
+		it 'returns expected response' do
+			expect(subject).to eq expected_response
+		end
+	end
 end

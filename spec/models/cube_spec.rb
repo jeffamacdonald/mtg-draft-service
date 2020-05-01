@@ -15,28 +15,28 @@ RSpec.describe Cube do
 		let(:set) {"LEB"}
 		let(:card_1) do
 			{
-				:card_name => card_name,
+				:name => card_name,
 			  :set => set,
 			  :count => 1
 			}
 		end
 		let(:card_2) do
 			{
-				:card_name => "Watchwolf",
+				:name => "Watchwolf",
 			  :set => "RAV",
 			  :count => 1
 			}
 		end
 		let(:card_3) do
 			{
-				:card_name => "Tundra",
+				:name => "Tundra",
 			  :set => "LEB",
 			  :count => 1
 			}
 		end
 		let(:card_4) do
 			{
-				:card_name => "Ensnaring Bridge",
+				:name => "Ensnaring Bridge",
 			  :set => "SGH",
 			  :count => 1
 			}

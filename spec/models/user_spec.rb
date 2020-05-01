@@ -17,6 +17,30 @@ RSpec.describe User do
 		end
 	end
 
+	describe '#display_drafts' do
+		let(:user) { create :user }
+		let!(:draft1) { create :draft }
+		let!(:draft2) { create :draft }
+		let!(:inactive_draft1) { create :draft, active_status: false }
+		let!(:inactive_draft2) { create :draft, active_status: false }
+		let!(:draft_participant1) { create :draft_participant, user_id: user.id, draft_id: draft1.id }
+		let!(:draft_participant2) { create :draft_participant, user_id: user.id, draft_id: draft2.id }
+		let!(:draft_participant3) { create :draft_participant, user_id: user.id, draft_id: inactive_draft1.id }
+		let!(:draft_participant4) { create :draft_participant, user_id: user.id, draft_id: inactive_draft2.id }
+		let(:expected_response) do
+			{
+				:active => [draft1,draft2],
+				:inactive => [inactive_draft1,inactive_draft2]
+			}
+		end
+
+		subject { user.display_drafts }
+
+		it 'returns hash with expected draft data' do
+			expect(subject).to eq expected_response
+		end
+	end
+
 	describe 'validations' do
 		let(:email) { "user@example.com" }
 		let(:phone) { "5555555555" }
