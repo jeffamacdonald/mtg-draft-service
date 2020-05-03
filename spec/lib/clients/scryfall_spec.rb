@@ -2,11 +2,11 @@ require 'rails_helper'
 
 RSpec.describe Clients::Scryfall do
 	describe '#get_card' do
-		let(:card_name) { "Lightning Bolt" }
+		let(:card_name) { "Austere Command" }
 		let(:scryfall_response) do
 			{
-				"name": "Lightning Bolt",
-				"layout": "something",
+				"name": card_name,
+				"layout": "normal",
 				"image_uris": {
 			    "small": "httpblah",
 			    "normal": "httpblah"
@@ -15,16 +15,12 @@ RSpec.describe Clients::Scryfall do
 			  "cmc": 6,
 			  "type_line": "Sorcery",
 			  "oracle_text": "Choose two —\n• Destroy all artifacts.\n• Destroy all enchantments.\n• Destroy all creatures with converted mana cost 3 or less.\n• Destroy all creatures with converted mana cost 4 or greater.",
-			  "colors": ["W"],
-			  "foo": "bar",
 			  "color_identity": ["W"],
-			  "power": 1,
-			  "toughness": 1,
-			  "set": "leb"
+			  "set": "LRW"
 			}
 		end
 		let(:expected_response) do
-			scryfall_response.select { |k,v| described_class::CARD_FIELDS.include? k.to_s }
+			scryfall_response.select { |k,v| CardSanitizer::CARD_FIELDS.include? k.to_s }
 		end
 		let(:status_code) {200}
 		let!(:scryfall_stub) do
@@ -33,8 +29,8 @@ RSpec.describe Clients::Scryfall do
 		end
 
 		context 'when params contains only name' do
-			let(:scryfall_params) { "fuzzy=#{card_name}" }
-			let(:encoded_faraday_params) {"/cards/named?fuzzy=Lightning+Bolt"}
+			let(:scryfall_params) { "exact=#{card_name}" }
+			let(:encoded_faraday_params) {"/cards/named?exact=Austere+Command"}
 
 			subject { described_class.new.get_card(card_name) }
 
@@ -49,8 +45,9 @@ RSpec.describe Clients::Scryfall do
 				subject
 			end
 
-			it 'returns only expected keys' do
-				expect(subject).to eq expected_response.with_indifferent_access
+			it 'sanitizes response' do
+				expect(CardSanitizer).to receive(:sanitize_card).with(scryfall_response, card_name)
+				subject
 			end
 
 			context 'when scryfall returns 404 status' do
@@ -60,43 +57,11 @@ RSpec.describe Clients::Scryfall do
 					expect{subject}.to raise_error Faraday::ResourceNotFound
 				end
 			end
-
-			context 'when scryfall returns no image_uris and card_face' do
-			  let(:scryfall_response) do
-			    {
-			      "name": "Lightning Bolt",
-			      "layout": "transform",
-			      "card_faces": [image_uris],
-			      "mana_cost": "{4}{W}{W}",
-			      "cmc": 6,
-			      "type_line": "Sorcery",
-			      "oracle_text": "Deal 3 damage to any target.",
-			      "colors": ["W"],
-			      "foo": "bar",
-			      "color_identity": ["W"],
-			      "power": 1,
-			      "toughness": 1,
-			      "set": "leb"
-			    }
-			  end
-			  let(:image_uris) do
-			  	{
-	          "image_uris": {
-	          	"small": "httpblah",
-	          	"normal": "httpblah"
-	        	}
-	      	}
-			  end
-
-			  it 'sets image_uris with card_faces uris' do
-			    expect(subject).to eq expected_response.merge(image_uris).with_indifferent_access
-			  end
-			end
 		end
 
 		context 'when params contain both name and set' do
 			let(:set) {'leb'}
-			let(:scryfall_params) { "fuzzy=#{card_name}&set=#{set}" }
+			let(:scryfall_params) { "exact=#{card_name}&set=#{set}" }
 
 			subject { described_class.new.get_card(card_name, set) }
 
@@ -115,7 +80,7 @@ RSpec.describe Clients::Scryfall do
 				"image_uris": {
 			    "small": "httpblah",
 			    "normal": "httpblah"
-			  }.stringify_keys,
+			  },
 			  "mana_cost": "{R}",
 			  "cmc": 1,
 			  "type_line": "Instant",
@@ -131,14 +96,12 @@ RSpec.describe Clients::Scryfall do
 				"image_uris": {
 			    "small": "httpblahsmall",
 			    "normal": "httpblahnormal"
-			  }.stringify_keys,
+			  },
 			  "mana_cost": "{1}{B}",
 			  "cmc": 2,
 			  "type_line": "Creature - Human Wizard",
 			  "oracle_text": "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its converted mana cost.",
-			  "colors": ["B"],
 			  "color_identity": ["B"],
-			  "foo": "bar",
 			  "power": 2,
 			  "toughness": 1,
 			  "set": "RAV"
@@ -156,7 +119,7 @@ RSpec.describe Clients::Scryfall do
 		end
 		let(:bolt) do
 			{
-				"name": "Lightning bolt",
+				"name": "Lightning Bolt",
 				"set": "LEB"
 			}
 		end
@@ -181,7 +144,12 @@ RSpec.describe Clients::Scryfall do
 			[bolt, bob, bad_query_data].map {|card| card.merge({"count": 1})}
 		end
 		let(:expected_response) do
-			[[bad_query_data.stringify_keys],[bolt_card_hash.stringify_keys,bob_card_hash.select {|k,_| described_class::CARD_FIELDS.include? k.to_s }.stringify_keys]]
+			[
+				[bad_query_data],
+				[CardSanitizer.sanitize_card(bolt_card_hash, 'Lightning Bolt'),
+					CardSanitizer.sanitize_card(bob_card_hash, 'Dark Confidant')
+				]
+			]
 		end
 
 		subject { described_class.new.get_card_list(cube_list) }

@@ -4,39 +4,35 @@ require 'cgi'
 module Clients
 	class Scryfall
 		BASE_URL = "https://api.scryfall.com"
-		CARD_FIELDS = %w[name layout image_uris mana_cost cmc type_line oracle_text color_identity set power toughness card_faces]
 
 		def initialize
 			@client = Faraday.new BASE_URL do |faraday|
 				faraday.use Faraday::Response::RaiseError
+				faraday.response :json, :parser_options => { :symbolize_names => true }
 			end
 		end
 
 		def get_card(name, set = nil)
 			@client.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-			response = @client.get("/cards/named?fuzzy=#{card_params(name, set)}")
-			sanitize_card(JSON.parse(response.body))
+			response = @client.get("/cards/named?exact=#{card_params(name, set)}")
+			CardSanitizer.sanitize_card(response.body, name)
 		end
 
 		def get_card_list(card_list)
 			@client.headers['Content-Type'] = 'application/json'
 			response = @client.post("/cards/collection", card_list_params(card_list).to_json)
-			sanitize_list(JSON.parse(response.body))
+			sanitize_list(response.body, card_list)
 		end
 
 		private
 
-		def sanitize_list(list_data)
-			errors = list_data['not_found']
-			cards = list_data['data'].map{ |card_data| sanitize_card(card_data) }
-			[errors, cards]
-		end
-
-		def sanitize_card(card_data)
-			unless card_data['image_uris']
-				card_data['image_uris'] = card_data['card_faces'][0]['image_uris']
+		def sanitize_list(list_data, card_list)
+			errors = list_data[:not_found]
+			cards = list_data[:data].map do |card_data|
+				CardSanitizer.sanitize_card(card_data, card_list.find { |card|
+					card_data[:name].include? card[:name] }[:name])
 			end
-			card_data.select { |k,v| CARD_FIELDS.include? k }
+			[errors, cards]
 		end
 
 		def card_params(name, set)

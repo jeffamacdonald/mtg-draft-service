@@ -113,13 +113,13 @@ RSpec.describe Cube do
 		end
 
 		before do
-			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Lightning+Bolt&set=LEB")
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Lightning+Bolt&set=LEB")
 				.to_return(status: bolt_status, body: bolt_response.to_json, headers: {})
-			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Watchwolf&set=RAV")
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Watchwolf&set=RAV")
 				.to_return(status: 200, body: watchwolf_response.to_json, headers: {})
-			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Tundra&set=LEB")
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Tundra&set=LEB")
 				.to_return(status: 200, body: tundra_response.to_json, headers: {})
-			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Ensnaring+Bridge&set=SGH")
+			stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Ensnaring+Bridge&set=SGH")
 				.to_return(status: 200, body: bridge_response.to_json, headers: {})
 		end
 
@@ -190,7 +190,7 @@ RSpec.describe Cube do
 				}
 			end
 			let!(:scryfall_stub) do
-				stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=#{card_name}&set=#{set}")
+				stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=#{card_name}&set=#{set}")
 					.to_return(status: 200, body: scryfall_response.to_json, headers: {})
 			end
 

@@ -10,6 +10,7 @@ gem 'grape'
 gem 'bcrypt', '~> 3.1.7'
 gem 'jwt'
 gem 'faraday'
+gem 'faraday_middleware'
 gem 'require_all'
 
 # Reduces boot times through caching; required in config/boot.rb

@@ -44,11 +44,11 @@ RSpec.describe 'Cubes Requests' do
 	end
 
 	before do
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Lightning+Bolt&set=LEB")
+		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Lightning+Bolt&set=LEB")
 			.to_return(status: bolt_status, body: bolt_response.to_json, headers: {})
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Dark+Confidant&set=RAV")
+		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Dark+Confidant&set=RAV")
 			.to_return(status: 200, body: bob_response.to_json, headers: {})
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?fuzzy=Nothing&set=LEB")
+		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Nothing&set=LEB")
 			.to_return(status: 404, body: {}.to_json, headers: {})
 	end
 
