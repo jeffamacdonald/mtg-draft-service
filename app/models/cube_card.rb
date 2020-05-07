@@ -13,6 +13,7 @@ class CubeCard < ApplicationRecord
 			cube_card.custom_set = card_hash[:set]
 			cube_card.custom_image = need_image ? get_custom_image(card_hash) : card_hash[:default_image]
 			cube_card.custom_color_identity = card_hash[:custom_color_identity] || card_hash[:color_identity]
+			cube_card.custom_cmc = card_hash[:custom_cmc] || card_hash[:cmc]
 			cube_card.soft_delete = false
 		end
 	end

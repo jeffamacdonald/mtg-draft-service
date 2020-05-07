@@ -37,6 +37,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     	t.string :custom_set
         t.string :custom_image
     	t.string :custom_color_identity
+        t.integer :custom_cmc
         t.boolean :soft_delete, null: false
         t.timestamps null: false
     end

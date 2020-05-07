@@ -8,6 +8,8 @@ RSpec.describe CubeCard do
 		let(:default_image) { 'image' }
 		let(:custom_color_identity) { nil }
 		let(:color_identity) { 'R' }
+		let(:custom_cmc) { nil }
+		let(:cmc) { 1 }
 		let(:count) { 1 }
 		let(:card_hash) do
 			{
@@ -18,7 +20,9 @@ RSpec.describe CubeCard do
 				:count => count,
 				:default_image => default_image,
 				:custom_color_identity => custom_color_identity,
-				:color_identity => color_identity
+				:color_identity => color_identity,
+				:custom_cmc => custom_cmc,
+				:cmc => cmc
 			}
 		end
 
@@ -32,6 +36,7 @@ RSpec.describe CubeCard do
 				expect(cube_card.custom_set).to eq set
 				expect(cube_card.custom_image).to eq default_image
 				expect(cube_card.custom_color_identity).to eq color_identity
+				expect(cube_card.custom_cmc).to eq cmc
 				expect(cube_card.count).to eq count
 				expect(cube_card.soft_delete).to eq false
 			end
@@ -57,6 +62,15 @@ RSpec.describe CubeCard do
 			it 'creates cube card with custom color identity' do
 				subject
 				expect(CubeCard.find_by(card_id: card.id).custom_color_identity).to eq custom_color_identity
+			end
+		end
+
+		context 'when cmc is custom' do
+			let(:custom_cmc) { 2 }
+
+			it 'creates cube card with custom cmc' do
+				subject
+				expect(CubeCard.find_by(card_id: card.id).custom_cmc).to eq custom_cmc
 			end
 		end
 	end

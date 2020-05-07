@@ -26,8 +26,8 @@ class Cube < ApplicationRecord
 	private
 
 	def get_sorted_active_cube_cards
-		cube_cards.joins(:card)
+		cube_cards
 			.where(soft_delete: false)
-			.order(:custom_color_identity, :cmc)
+			.order(:custom_color_identity, :custom_cmc)
 	end
 end

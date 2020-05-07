@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
     t.string "custom_set"
     t.string "custom_image"
     t.string "custom_color_identity"
+    t.integer "custom_cmc"
     t.boolean "soft_delete", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

@@ -94,17 +94,17 @@ RSpec.describe 'Cubes Requests' do
 		let(:url) { "/api/v1/cubes/#{cube_id}" }
 		let!(:cube) { create :cube }
 		let!(:card_1) { create :card, cmc: 4, color_identity: 'B' }
-		let!(:card_2) { create :card, cmc: 0, color_identity: 'C' }
+		let!(:card_2) { create :card, cmc: 5, color_identity: 'C' }
 		let!(:card_3) { create :card, cmc: 3, color_identity: 'C' }
 		let!(:card_4) { create :card, cmc: 2, color_identity: 'C' }
 		let!(:card_5) { create :card, cmc: 5, color_identity: 'UG' }
 		let!(:card_6) { create :card, cmc: 4, color_identity: 'UG' }
-		let!(:cube_card_1) { create :cube_card, cube_id: cube.id, card_id: card_1.id, custom_color_identity: 'B', soft_delete: true }
-		let!(:cube_card_2) { create :cube_card, cube_id: cube.id, card_id: card_2.id, custom_color_identity: 'C' }
-		let!(:cube_card_3) { create :cube_card, cube_id: cube.id, card_id: card_3.id, custom_color_identity: 'C' }
-		let!(:cube_card_4) { create :cube_card, cube_id: cube.id, card_id: card_4.id, custom_color_identity: 'R' }
-		let!(:cube_card_5) { create :cube_card, cube_id: cube.id, card_id: card_5.id, custom_color_identity: 'UG' }
-		let!(:cube_card_6) { create :cube_card, cube_id: cube.id, card_id: card_6.id, custom_color_identity: 'UG' }
+		let!(:cube_card_1) { create :cube_card, cube_id: cube.id, card_id: card_1.id, custom_cmc: 4, custom_color_identity: 'B', soft_delete: true }
+		let!(:cube_card_2) { create :cube_card, cube_id: cube.id, card_id: card_2.id, custom_cmc: 0, custom_color_identity: 'C' }
+		let!(:cube_card_3) { create :cube_card, cube_id: cube.id, card_id: card_3.id, custom_cmc: 3, custom_color_identity: 'C' }
+		let!(:cube_card_4) { create :cube_card, cube_id: cube.id, card_id: card_4.id, custom_cmc: 2, custom_color_identity: 'R' }
+		let!(:cube_card_5) { create :cube_card, cube_id: cube.id, card_id: card_5.id, custom_cmc: 5, custom_color_identity: 'UG' }
+		let!(:cube_card_6) { create :cube_card, cube_id: cube.id, card_id: card_6.id, custom_cmc: 4, custom_color_identity: 'UG' }
 		let(:cube_id) { cube.id }
 
 		subject { get url }
