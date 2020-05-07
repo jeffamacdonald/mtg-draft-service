@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
   create_table "cards", force: :cascade do |t|
     t.string "name", null: false
     t.string "cost"
-    t.integer "converted_mana_cost"
+    t.integer "cmc", null: false
     t.string "color_identity", null: false
     t.string "type_line", null: false
     t.string "card_text"
@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["card_text"], name: "index_cards_on_card_text"
+    t.index ["cmc"], name: "index_cards_on_cmc"
     t.index ["color_identity"], name: "index_cards_on_color_identity"
-    t.index ["converted_mana_cost"], name: "index_cards_on_converted_mana_cost"
     t.index ["name"], name: "index_cards_on_name", unique: true
     t.index ["power"], name: "index_cards_on_power"
     t.index ["toughness"], name: "index_cards_on_toughness"

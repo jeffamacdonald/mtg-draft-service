@@ -34,11 +34,11 @@ class CardEnricher
 			begin
 				Clients::Scryfall.new.get_card(card_hash[:name], card_hash[:set])
 			rescue Faraday::ResourceNotFound
-				appended_set_message = card_hash[:set].nil? ? "" : " or Card Not Found in Set"
-				{
-					:name => card_hash[:name],
-					:error => "Invalid Card Name" + appended_set_message
-				}
+				if card_hash[:set].nil?
+					{:error => {:name => card_hash[:name], :message => "Card Not Found"}}
+				else
+					{:error => {:name => card_hash[:name], :set => card_hash[:set], :message => "Card Not Found in Set"}}
+				end
 			end
 		end
 	end

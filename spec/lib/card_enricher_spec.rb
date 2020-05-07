@@ -128,11 +128,13 @@ RSpec.describe CardEnricher do
 
 		context 'when scryfall cannot find card' do
 			let(:status) { 404 }
-			let(:set_error) { " or Card Not Found in Set" }
 			let(:expected_response) do
 				{
-					:name => "Shock",
-					:error => "Invalid Card Name" + set_error
+					:error => {
+						:name => "Shock",
+						:set => set,
+						:message => "Card Not Found in Set"
+					}
 				}
 			end
 
@@ -143,7 +145,14 @@ RSpec.describe CardEnricher do
 			context 'when set is nil' do
 				let(:set) { nil }
 				let(:set_param) { "" }
-				let(:set_error) { "" }
+				let(:expected_response) do
+					{
+						:error => {
+							:name => "Shock",
+							:message => "Card Not Found"
+						}
+					}
+				end
 
 				it 'returns error' do
 					expect(subject).to eq expected_response

@@ -145,7 +145,7 @@ RSpec.describe Clients::Scryfall do
 		end
 		let(:expected_response) do
 			[
-				[bad_query_data],
+				[bad_query_data.merge({:message => "Card Not Found"})],
 				[CardSanitizer.sanitize_card(bolt_card_hash, 'Lightning Bolt'),
 					CardSanitizer.sanitize_card(bob_card_hash, 'Dark Confidant')
 				]

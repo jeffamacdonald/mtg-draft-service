@@ -45,7 +45,7 @@ class DckParser
 		if count < 1
 			@errors << {
 				:name => "#{name}",
-				:error => "Count Invalid"
+				:message => "Count Invalid"
 			}
 		end
 	end
@@ -54,7 +54,7 @@ class DckParser
 		if !set.length.between?(3,4)
 			@errors << {
 				:name => "#{name}",
-				:error => "Set Invalid"
+				:message => "Set Invalid"
 			}
 		end
 	end

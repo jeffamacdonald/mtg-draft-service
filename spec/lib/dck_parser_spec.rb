@@ -57,7 +57,7 @@ RSpec.describe DckParser do
 			end
 			let(:expected_error) do
 				[{
-					:error => "Count Invalid",
+					:message => "Count Invalid",
 					:name => "#{card_name}"
 				}]
 			end
@@ -72,10 +72,10 @@ RSpec.describe DckParser do
 				let(:expected_array) { [] }
 				let(:expected_error) do
 					[{
-						:error => "Count Invalid",
+						:message => "Count Invalid",
 						:name => "#{card_name}"
 					}, {
-						:error => "Count Invalid",
+						:message => "Count Invalid",
 						:name => "#{card_name2}"
 					}]
 				end
@@ -98,7 +98,7 @@ RSpec.describe DckParser do
 			end
 			let(:expected_error) do
 				[{
-					:error => "Set Invalid",
+					:message => "Set Invalid",
 					:name => "#{card_name}"
 				}]
 			end

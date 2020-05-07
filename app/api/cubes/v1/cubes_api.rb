@@ -51,7 +51,7 @@ module Cubes
 				post 'create' do
 					begin
 						ActiveRecord::Base.transaction do
-							create_cube.create_cube_cards(params[:cube_list])
+							create_cube.setup_cube_from_list(params[:cube_list])
 						end
 						{"message": "success"}
 					rescue Cube::CreationError => ex
@@ -69,7 +69,7 @@ module Cubes
 					begin
 						ActiveRecord::Base.transaction do
 							cube_list, errors = parsed_dck_file
-							create_cube.create_cube_cards(cube_list)
+							create_cube.setup_cube_from_list(cube_list)
 						end
 						if errors.empty?
 							{"message": "success"}

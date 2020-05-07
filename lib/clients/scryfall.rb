@@ -27,7 +27,9 @@ module Clients
 		private
 
 		def sanitize_list(list_data, card_list)
-			errors = list_data[:not_found]
+			errors = list_data[:not_found].map do |error|
+				error.merge({:message => "Card Not Found"})
+			end
 			cards = list_data[:data].map do |card_data|
 				CardSanitizer.sanitize_card(card_data, card_list.find { |card|
 					card_data[:name].include? card[:name] }[:name])

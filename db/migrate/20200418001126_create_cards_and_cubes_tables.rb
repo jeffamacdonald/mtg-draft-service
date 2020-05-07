@@ -3,7 +3,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     create_table :cards do |t|
     	t.string :name, null: false
     	t.string :cost
-    	t.integer :converted_mana_cost
+    	t.integer :cmc, null: false
         t.string :color_identity, null: false
         t.string :type_line, null: false
     	t.string :card_text
@@ -16,7 +16,7 @@ class CreateCardsAndCubesTables < ActiveRecord::Migration[6.0]
     end
 
     add_index :cards, :name, unique: true
-    add_index :cards, :converted_mana_cost
+    add_index :cards, :cmc
     add_index :cards, :card_text
     add_index :cards, :power
     add_index :cards, :toughness

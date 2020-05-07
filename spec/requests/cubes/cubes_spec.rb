@@ -5,8 +5,7 @@ RSpec.describe 'Cubes Requests' do
 	let(:decoded_token) do
 		{:user_id => user.id}
 	end
-	let(:bolt_status) { 200 }
-	let(:bolt_response) do
+	let(:bolt) do
 		{
 			"name": "Lightning Bolt",
 			"layout": "normal",
@@ -23,7 +22,7 @@ RSpec.describe 'Cubes Requests' do
 		  "set": "LEB"
 		}
 	end
-	let(:bob_response) do
+	let(:bob) do
 		{
 			"name": "Dark Confidant",
 			"layout": "normal",
@@ -42,14 +41,19 @@ RSpec.describe 'Cubes Requests' do
 		  "set": "RAV"
 		}
 	end
+	let(:not_found) do
+		[]
+	end
+	let(:scryfall_response) do
+		{
+			:not_found => not_found,
+			:data => [bolt, bob]
+		}
+	end
 
 	before do
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Lightning+Bolt&set=LEB")
-			.to_return(status: bolt_status, body: bolt_response.to_json, headers: {})
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Dark+Confidant&set=RAV")
-			.to_return(status: 200, body: bob_response.to_json, headers: {})
-		stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Nothing&set=LEB")
-			.to_return(status: 404, body: {}.to_json, headers: {})
+		stub_request(:post, "#{Clients::Scryfall::BASE_URL}/cards/collection")
+			.to_return(status: 200, body: scryfall_response.to_json, headers: {})
 	end
 
 	describe 'GET /' do
@@ -89,12 +93,12 @@ RSpec.describe 'Cubes Requests' do
 	describe 'GET /id' do
 		let(:url) { "/api/v1/cubes/#{cube_id}" }
 		let!(:cube) { create :cube }
-		let!(:card_1) { create :card, converted_mana_cost: 4, color_identity: 'B' }
-		let!(:card_2) { create :card, converted_mana_cost: 0, color_identity: 'C' }
-		let!(:card_3) { create :card, converted_mana_cost: 3, color_identity: 'C' }
-		let!(:card_4) { create :card, converted_mana_cost: 2, color_identity: 'C' }
-		let!(:card_5) { create :card, converted_mana_cost: 5, color_identity: 'UG' }
-		let!(:card_6) { create :card, converted_mana_cost: 4, color_identity: 'UG' }
+		let!(:card_1) { create :card, cmc: 4, color_identity: 'B' }
+		let!(:card_2) { create :card, cmc: 0, color_identity: 'C' }
+		let!(:card_3) { create :card, cmc: 3, color_identity: 'C' }
+		let!(:card_4) { create :card, cmc: 2, color_identity: 'C' }
+		let!(:card_5) { create :card, cmc: 5, color_identity: 'UG' }
+		let!(:card_6) { create :card, cmc: 4, color_identity: 'UG' }
 		let!(:cube_card_1) { create :cube_card, cube_id: cube.id, card_id: card_1.id, custom_color_identity: 'B', soft_delete: true }
 		let!(:cube_card_2) { create :cube_card, cube_id: cube.id, card_id: card_2.id, custom_color_identity: 'C' }
 		let!(:cube_card_3) { create :cube_card, cube_id: cube.id, card_id: card_3.id, custom_color_identity: 'C' }
@@ -151,20 +155,21 @@ RSpec.describe 'Cubes Requests' do
 
 	describe 'POST /create', type: :request do
 		let(:url) { "/api/v1/cubes/create" }
+		let(:cube_list) do
+			[{
+				:count => 1,
+				:set => 'LEB',
+				:name => 'Lightning Bolt'
+			}, {
+				:count => 1,
+				:set => 'RAV',
+				:name => 'Dark Confidant'
+			}]
+		end
 		let(:params) do
 			{
-				name: "my cube",
-				cube_list: [
-					{
-						count: 1,
-						set: 'LEB',
-						name: 'Lightning Bolt'
-					}, {
-						count: 1,
-						set: 'RAV',
-						name: 'Dark Confidant'
-					}
-				]
+				:name => "my cube",
+				:cube_list => cube_list
 			}
 		end
 
@@ -196,12 +201,33 @@ RSpec.describe 'Cubes Requests' do
 			end
 
 			context 'scryfall cannot find a card' do
-				let(:bolt_status) { 404 }
+				let(:cube_list) do
+					[{
+						:count => 1,
+						:set => 'LEB',
+						:name => 'Lightning Bolt'
+					}, {
+						:count => 1,
+						:set => 'RAV',
+						:name => 'Dark Confidant'
+					}, {
+						:name => "Counterspall",
+						:set => "LEB",
+						:count => 1
+					}]
+				end
+				let(:not_found) do
+					[{
+						:name => "Counterspall",
+						:set => "LEB"
+					}]
+				end
 				let(:expected_body) do
 					{
 						"error": [{
-							"name": "Lightning Bolt",
-							"error": "Invalid Card Name or Card Not Found in Set"
+							"name": "Counterspall",
+							"set": "LEB",
+							"message": "Card Not Found"
 						}]
 					}
 				end
@@ -226,11 +252,11 @@ RSpec.describe 'Cubes Requests' do
 			context 'missing name attribute' do
 				let(:params) do
 					{
-						cube_list: [
+						:cube_list => [
 							{
-								count: 1,
-								set: 'LEB',
-								name: 'Lightning Bolt'
+								:count => 1,
+								:set => 'LEB',
+								:name => 'Lightning Bolt'
 							}
 						]
 					}
@@ -245,7 +271,7 @@ RSpec.describe 'Cubes Requests' do
 			context 'missing cube list attribute' do
 				let(:params) do
 					{
-						name: "some name"
+						:name => "some name"
 					}
 				end
 
@@ -258,11 +284,11 @@ RSpec.describe 'Cubes Requests' do
 			context 'missing card name in list attribute' do
 				let(:params) do
 					{
-						name: "a name",
-						cube_list: [
+						:name => "a name",
+						:cube_list => [
 							{
-								count: 1,
-								set: 'LEB'
+								:count => 1,
+								:set => 'LEB'
 							}
 						]
 					}
@@ -324,8 +350,8 @@ RSpec.describe 'Cubes Requests' do
 				end
 				let(:expected_errors) do
 					{
-						:error => [{:name => "Lightning Bolt",:error => "Count Invalid"},
-							{:name => "Dark Confidant",:error => "Set Invalid"}]
+						:error => [{:name => "Lightning Bolt",:message => "Count Invalid"},
+							{:name => "Dark Confidant",:message => "Set Invalid"}]
 					}
 				end
 
@@ -341,14 +367,19 @@ RSpec.describe 'Cubes Requests' do
 			end
 
 			context 'when file has dck parse and scryfall errors' do
+				let(:not_found) do
+					[{
+						:name => "Counterspall",
+						:set => "LEB"
+					}]
+				end
 				let(:file) do
 					fixture_file_upload('files/count_set_name_errors.dck')
 				end
 				let(:expected_errors) do
 					{
-						:error => [{:name => "Nothing",:error => "Invalid Card Name or Card Not Found in Set"},
-							{:name => "Lightning Bolt",:error => "Count Invalid"},
-							{:name => "Dark Confidant",:error => "Set Invalid"}]
+						:error => [{:name => "Counterspall",:set => "LEB",:message => "Card Not Found"},
+							{:name => "Channel",:message => "Set Invalid"}]
 					}
 				end
 
