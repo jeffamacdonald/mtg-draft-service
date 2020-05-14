@@ -26,7 +26,7 @@ class AddDraftTables < ActiveRecord::Migration[6.0]
 
   	create_table :participant_picks do |t|
   		t.references :draft_participant, references: :draft_participants, foreign_key: { to_table: :draft_participants }
-  		t.references :card, references: :cards, foreign_key: { to_table: :cards }
+  		t.references :cube_card, references: :cube_cards, foreign_key: { to_table: :cube_cards }
   		t.integer :pick_number, null: false
   		t.integer :round, null: false
   		t.timestamps null: false

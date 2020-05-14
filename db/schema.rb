@@ -99,12 +99,12 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
 
   create_table "participant_picks", force: :cascade do |t|
     t.bigint "draft_participant_id"
-    t.bigint "card_id"
+    t.bigint "cube_card_id"
     t.integer "pick_number", null: false
     t.integer "round", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["card_id"], name: "index_participant_picks_on_card_id"
+    t.index ["cube_card_id"], name: "index_participant_picks_on_cube_card_id"
     t.index ["draft_participant_id"], name: "index_participant_picks_on_draft_participant_id"
     t.index ["round"], name: "index_participant_picks_on_round"
   end
@@ -127,6 +127,6 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
   add_foreign_key "draft_participants", "users"
   add_foreign_key "draft_participants", "users", column: "surrogate_user_id"
   add_foreign_key "drafts", "cubes"
-  add_foreign_key "participant_picks", "cards"
+  add_foreign_key "participant_picks", "cube_cards"
   add_foreign_key "participant_picks", "draft_participants"
 end
