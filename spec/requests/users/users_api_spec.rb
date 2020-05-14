@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Users Requests' do
+RSpec.describe 'Users API Requests' do
 	let!(:user) { create :user }
 	let(:decoded_token) do
 		{:user_id => user.id}
@@ -27,13 +27,9 @@ RSpec.describe 'Users Requests' do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
 
-			it 'returns 200' do
-				subject
-				expect(response.status).to eq 200
-			end
-
 			it 'returns expected response body' do
 				subject
+				expect(response.status).to eq 200
 				expect(response.body).to eq expected_response.to_json
 			end
 		end
@@ -59,13 +55,9 @@ RSpec.describe 'Users Requests' do
 					allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 				end
 
-				it 'returns 200' do
-					subject
-					expect(response.status).to eq 200
-				end
-
 				it 'returns expected response body' do
 					subject
+					expect(response.status).to eq 200
 					expect(response.body).to eq expected_response.to_json
 				end
 			end
@@ -103,13 +95,9 @@ RSpec.describe 'Users Requests' do
 					allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 				end
 
-				it 'returns 200' do
-					subject
-					expect(response.status).to eq 200
-				end
-
 				it 'returns expected response body' do
 					subject
+					expect(response.status).to eq 200
 					expect(response.body).to eq expected_response.to_json
 				end
 			end

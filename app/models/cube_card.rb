@@ -3,8 +3,22 @@ class CubeCard < ApplicationRecord
 	belongs_to :cube
 	belongs_to :card
 
+	def update_from_hash(card_hash)
+		card_hash[:id] = self.card_id
+		card_hash[:name] = self.card.name
+		need_image = card_hash[:set].present? &&
+									self.card.default_set.upcase != card_hash[:set].upcase
+		self.count = card_hash[:count] if card_hash[:count].present?
+		self.custom_set = card_hash[:set] if card_hash[:set].present?
+		self.custom_image = need_image ? CubeCard.get_custom_image(card_hash) : self.card.default_image
+		self.custom_color_identity = card_hash[:custom_color_identity] if card_hash[:custom_color_identity].present?
+		self.custom_cmc = card_hash[:custom_cmc] if card_hash[:custom_cmc].present?
+		self.soft_delete = card_hash[:soft_delete] if !card_hash[:soft_delete].nil?
+		save!
+	end
+
 	def self.create_cube_card_from_hash(cube, card_hash)
-		need_image = !card_hash[:set].nil? &&
+		need_image = card_hash[:set].present? &&
 									card_hash[:default_set].upcase != card_hash[:set]&.upcase
 		CubeCard.create! do |cube_card|
 			cube_card.cube_id = cube.id
@@ -23,7 +37,7 @@ class CubeCard < ApplicationRecord
 		if cube_card_with_set
 			CubeCard.find_by(card_id: card_hash[:id], custom_set: card_hash[:set]).custom_image
 		else
-			scryfall_card = Clients::Scryfall.new.get_card(card_hash[:name], card_hash[:set])
+			scryfall_card = CardEnricher.get_enriched_card(card_hash)
 			if scryfall_card[:error].present?
 				raise CreationError.new(scryfall_card[:error].to_json)
 			else

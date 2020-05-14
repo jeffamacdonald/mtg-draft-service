@@ -11,10 +11,10 @@ class CardEnricher
 		def get_enriched_card(card_hash)
 			scryfall_hash = scryfall_card(card_hash)
 			return scryfall_hash if scryfall_hash.has_key? :error
-			scryfall_hash.merge({
-				:count => card_hash[:count],
-				:custom_color_identity => card_hash[:custom_color_identity]
-			})
+			user_provided_keys = {:count => card_hash[:count]}
+			user_provided_keys.merge!({:custom_color_identity => card_hash[:custom_color_identity]}) if card_hash[:custom_color_identity]
+			user_provided_keys.merge!({:custom_cmc => card_hash[:custom_cmc]}) if card_hash[:custom_cmc]
+			scryfall_hash.merge(user_provided_keys)
 		end
 
 		private

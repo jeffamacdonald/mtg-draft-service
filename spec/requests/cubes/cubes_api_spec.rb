@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Cubes Requests' do
+RSpec.describe 'Cubes API Requests' do
 	let(:user) { create :user }
 	let(:decoded_token) do
 		{:user_id => user.id}
@@ -78,13 +78,9 @@ RSpec.describe 'Cubes Requests' do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
 
-			it 'returns 200' do
-				subject
-				expect(response.status).to eq 200
-			end
-
 			it 'returns expected response body' do
 				subject
+				expect(response.status).to eq 200
 				expect(response.body).to eq expected_response.to_json
 			end
 		end
@@ -132,13 +128,9 @@ RSpec.describe 'Cubes Requests' do
 				}
 			end
 
-			it 'returns 200' do
-				subject
-				expect(response.status).to eq 200
-			end
-
 			it 'returns expected response body' do
 				subject
+				expect(response.status).to eq 200
 				expect(response.body).to eq expected_response.to_json
 			end
 
@@ -187,13 +179,9 @@ RSpec.describe 'Cubes Requests' do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
 
-			it 'returns 201' do
-				subject
-				expect(response.status).to eq 201
-			end
-
 			it 'cube is created' do
 				subject
+				expect(response.status).to eq 201
 				cube = Cube.find_by(user_id: user.id)
 				expect(cube).to be_present
 				expect(CubeCard.where(cube_id: cube.id).count).to eq 2
@@ -232,13 +220,9 @@ RSpec.describe 'Cubes Requests' do
 					}
 				end
 
-				it 'returns 422' do
-					subject
-					expect(response.status).to eq 422
-				end
-
 				it 'returns errors in body' do
 					subject
+					expect(response.status).to eq 422
 					expect(response.body).to eq expected_body.to_json
 				end
 
@@ -355,13 +339,9 @@ RSpec.describe 'Cubes Requests' do
 					}
 				end
 
-				it 'returns 422' do
-					subject
-					expect(response.status).to eq 422
-				end
-
 				it 'body contains errors' do
 					subject
+					expect(response.status).to eq 422
 					expect(response.body).to eq expected_errors.to_json
 				end
 			end
@@ -383,14 +363,181 @@ RSpec.describe 'Cubes Requests' do
 					}
 				end
 
-				it 'returns 422' do
-					subject
-					expect(response.status).to eq 422
-				end
-
 				it 'body contains errors' do
 					subject
+					expect(response.status).to eq 422
 					expect(response.body).to eq expected_errors.to_json
+				end
+			end
+		end
+	end
+
+	describe 'PUT /:cube_id' do
+		let(:url) { "/api/v1/cubes/#{cube.id}" }
+		let(:cube) { create :cube, user_id: user.id }
+		let(:cube_name) { 'updated name' }
+		let(:params) do
+			{
+				:name => cube_name,
+				:cube_list => cube_list
+			}
+		end
+		let(:cube_list) { [bolt, bob] }
+		let(:bolt) do
+			{
+				:name => 'Lightning Bolt',
+				:set => 'LEB',
+				:count => 1
+			}
+		end
+		let(:bob) do
+			{
+				:name => 'Dark Confidant',
+				:set => 'RAV',
+				:count => 1
+			}
+		end
+
+		subject { put url, params: params }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			context 'when cube is currently being drafted' do
+				let!(:draft) { create :draft, cube_id: cube.id }
+				let(:expected_response) do
+					{
+						:message => 'Cannot edit a cube being actively drafted'
+					}
+				end
+
+				it 'body contains error message' do
+					subject
+					expect(response.status).to eq 403
+					expect(response.body).to eq expected_response.to_json
+				end
+			end
+
+			context 'when cards do not exist' do
+				let(:scryfall_bolt) do
+					{
+						"name": "Lightning Bolt",
+						"layout": "normal",
+						"image_uris": {
+							"normal": "normalimage"
+						},
+					  "mana_cost": "{R}",
+					  "cmc": 1,
+					  "type_line": "Instant",
+					  "oracle_text": "Deal 3 damage to any target.",
+					  "color_identity": ["R"],
+					  "set": "LEB"
+					}
+				end
+				let(:scryfall_bob) do
+					{
+						"name": "Dark Confidant",
+						"layout": "normal",
+						"image_uris": {
+							"normal": "normalimage"
+						},
+					  "mana_cost": "{1}{B}",
+					  "cmc": 2,
+					  "type_line": "Create - Human Wizard",
+					  "oracle_text": "At the beginning of your upkeep, reveal the top card of your library and put that card into your hand. You lose life equal to its converted mana cost.",
+					  "color_identity": ["B"],
+					  "power": 2,
+					  "toughness": 1,
+					  "set": "RAV"
+					}
+				end
+				let!(:bolt_stub) do
+					stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Lightning+Bolt&set=LEB")
+						.to_return(status: 200, body: scryfall_bolt.to_json, headers: {})
+				end
+				let!(:bob_stub) do
+					stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Dark+Confidant&set=RAV")
+						.to_return(status: 200, body: scryfall_bob.to_json, headers: {})
+				end
+
+				it 'cards and cube cards are created' do
+					subject
+					expect(response.status).to eq 200
+					expect(Card.all.count).to eq 2
+					expect(Card.all.count).to eq 2
+				end
+			end
+
+			context 'when cards exist but cube cards do not' do
+				let!(:bolt_card) { create :card, name: 'Lightning Bolt', default_set: 'LEB' }
+				let!(:bob_card) { create :card, name: 'Dark Confidant', default_set: 'RAV' }
+
+				it 'only cube cards are created' do
+					subject
+					expect(response.status).to eq 200
+					expect(Card.all.count).to eq 2
+					expect(Card.all.count).to eq 2
+				end
+
+				context 'when cube cards exist' do
+					let!(:bolt_cube_card) { create :cube_card, cube_id: cube.id, card_id: bolt_card.id }
+					let!(:bob_cube_card) { create :cube_card, cube_id: cube.id, card_id: bob_card.id }
+					let!(:bolt_update_stub) do
+						stub_request(:get, "#{Clients::Scryfall::BASE_URL}/cards/named?exact=Lightning+Bolt&set=3ED")
+							.to_return(status: 200, body: scryfall_bolt_update.to_json, headers: {})
+					end
+					let(:scryfall_bolt_update) do
+						{
+							"name": "Lightning Bolt",
+							"layout": "normal",
+							"image_uris": {
+								"normal": "updatedimage"
+							},
+						  "mana_cost": "{R}",
+						  "cmc": 1,
+						  "type_line": "Instant",
+						  "oracle_text": "Deal 3 damage to any target.",
+						  "color_identity": ["R"],
+						  "set": "3ED"
+						}
+					end
+					let(:bolt) do
+						{
+							:id => bolt_cube_card.id,
+							:name => 'Lightning Bolt',
+							:set => '3ED',
+							:count => 1,
+							:custom_cmc => 2,
+							:custom_color_identity => 'G'
+						}
+					end
+					let(:bob) do
+						{
+							:id => bob_cube_card.id,
+							:name => 'Dark Confidant',
+							:set => 'RAV',
+							:count => 1,
+							:soft_delete => true						}
+					end
+
+					it 'cube cards are updated' do
+						subject
+						expect(response.status).to eq 200
+						bolt_cc = CubeCard.find(bolt_cube_card.id)
+						expect(bolt_cc.custom_set).to eq bolt[:set]
+						expect(bolt_cc.custom_cmc).to eq bolt[:custom_cmc]
+						expect(bolt_cc.custom_color_identity).to eq bolt[:custom_color_identity]
+						expect(CubeCard.find(bob_cube_card.id).soft_delete).to eq true
+					end
 				end
 			end
 		end

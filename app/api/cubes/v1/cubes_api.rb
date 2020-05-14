@@ -39,6 +39,29 @@ module Cubes
 					end
 				end
 
+				desc 'update cube'
+				params do
+					requires :cube_id, type: Integer
+					optional :name, type: String
+					optional :cube_list, type: Array do
+						optional :id, type: String
+						optional :count, type: String
+						optional :set, type: String
+						optional :custom_color_identity, type: String
+						optional :custom_cmc, type: String
+					end
+				end
+				put ':cube_id' do
+					if Draft.where(cube_id: params[:cube_id], active_status: true).first
+						error!({:message => "Cannot edit a cube being actively drafted"}, :forbidden)
+					end
+					begin
+						@user.cubes.find(params[:cube_id]).update_cube(params)
+					rescue ActiveRecord::RecordNotFound => ex
+						error!(ex.message, :not_found)
+					end
+				end
+
 				desc 'Create a cube from JSON list'
 				params do
 					requires :name, type: String

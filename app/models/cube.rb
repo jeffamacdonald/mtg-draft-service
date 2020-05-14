@@ -23,6 +23,31 @@ class Cube < ApplicationRecord
 		}
 	end
 
+	def update_cube(params)
+		ActiveRecord::Base.transaction do
+			if params[:name]
+				self.name = params[:name]
+				save!
+			end
+			params[:cube_list]&.each do |update_hash|
+				if update_hash[:id].present?
+					CubeCard.find(update_hash[:id]).update_from_hash(update_hash)
+				else
+					card = Card.find_by(name: update_hash[:name])
+					if card.nil?
+						enriched_card = CardEnricher.get_enriched_card(update_hash)
+						if enriched_card[:error].present?
+							raise CreationError.new(enriched_card[:error].to_json)
+						end
+						card = Card.create_card_from_hash(enriched_card)
+					end
+					CubeCard.create_cube_card_from_hash(self, update_hash.merge(
+						{:id => card.id, :default_set => card.default_set}))
+				end
+			end
+		end
+	end
+
 	private
 
 	def get_sorted_active_cube_cards

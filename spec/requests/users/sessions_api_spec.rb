@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Sessions Requests' do
+RSpec.describe 'Sessions API Requests' do
   describe 'POST /login', type: :request do
     let(:user) { create :user }
     let(:url) { '/api/v1/users/login' }
@@ -14,13 +14,9 @@ RSpec.describe 'Sessions Requests' do
     subject { post url, params: params }
 
     context 'when params are correct' do
-      it 'returns 200' do
-        subject
-        expect(response.status).to eq 200
-      end
-
       it 'returns JWT in authorization header' do
         subject
+        expect(response.status).to eq 200
         expect(response.headers['Authorization']).to be_present
       end
     end
@@ -61,13 +57,9 @@ RSpec.describe 'Sessions Requests' do
         allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
       end
 
-      it 'returns 204' do
-        subject
-        expect(response.status).to eq 204
-      end
-
       it 'adds an entry to jwt blacklist' do
         subject
+        expect(response.status).to eq 204
         expect(JwtBlacklist.find_by(jti: jti)).to be_present
       end
 

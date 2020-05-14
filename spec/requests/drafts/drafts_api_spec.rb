@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Drafts Requests' do
+RSpec.describe 'Drafts API Requests' do
 	describe 'POST /create', type: :request do
 		let(:url) { '/api/v1/drafts/create' }
 		let(:name) { "Test Draft" }
@@ -39,13 +39,9 @@ RSpec.describe 'Drafts Requests' do
 			end
 
 			context 'when all params are present' do
-				it 'returns 201' do
-					subject
-					expect(response.status).to eq 201
-				end
-
 				it 'draft is created' do
 					subject
+					expect(response.status).to eq 201
 					expect(Draft.all.count).to eq 1
 					expect(Draft.first.users).to eq [user1, user2]
 					expect(Draft.first.active_status).to eq true
@@ -56,13 +52,9 @@ RSpec.describe 'Drafts Requests' do
 				let(:user_ids) { [user1.id,user2.id,100] }
 				let(:expected_error) { { "error": "Invalid Draft Participants" } }
 
-				it 'returns 400' do
-					subject
-					expect(response.status).to eq 400
-				end
-
 				it 'returns error message' do
 					subject
+					expect(response.status).to eq 400
 					expect(response.body).to eq expected_error.to_json
 				end
 			end
@@ -93,13 +85,9 @@ RSpec.describe 'Drafts Requests' do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
 			end
 
-			it 'returns 200' do
-				subject
-				expect(response.status).to eq 200
-			end
-
 			it 'returns expected response body' do
 				subject
+				expect(response.status).to eq 200
 				expect(response.body).to eq draft.to_json
 			end
 

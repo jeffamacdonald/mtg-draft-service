@@ -19,13 +19,9 @@ RSpec.describe 'POST /register', type: :request do
   subject { post url, params: params }
 
   context 'when user does not exist' do
-    it 'returns 201' do
-      subject
-      expect(response.status).to eq 201
-    end
-
     it 'returns a new user with correct values' do
       subject
+      expect(response.status).to eq 201
       response_body = JSON.parse(response.body)
       expect(response_body["email"]).to eq email
       expect(response_body["username"]).to eq username
@@ -41,13 +37,9 @@ RSpec.describe 'POST /register', type: :request do
       }
     end
 
-    it 'returns unprocessable entity status' do
-      subject
-      expect(response.status).to eq 422
-    end
-
     it 'returns validation errors' do
       subject
+      expect(response.status).to eq 422
       expect(response.body).to eq expected_response.to_json
     end
   end
@@ -60,13 +52,9 @@ RSpec.describe 'POST /register', type: :request do
       }
     end
 
-    it 'returns bad request status' do
-      subject
-      expect(response.status).to eq 400
-    end
-
     it 'returns validation errors' do
       subject
+      expect(response.status).to eq 400
       expect(response.body).to eq expected_response.to_json
     end
   end

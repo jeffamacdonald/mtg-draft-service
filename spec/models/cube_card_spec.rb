@@ -1,6 +1,44 @@
 require 'rails_helper'
 
 RSpec.describe CubeCard do
+	describe '#update_from_hash' do
+		let(:card) { create :card }
+		let(:cube_card) { create :cube_card, card_id: card.id }
+		let(:update_hash) do
+			{
+				:count => 2,
+				:set => '3ED',
+				:custom_color_identity => 'R',
+				:custom_cmc => 2,
+				:soft_delete => true
+			}
+		end
+		let(:image) { 'some_image' }
+		let(:scryfall_response) do
+			{
+				:image_uri => image
+			}
+		end
+
+		subject { cube_card.update_from_hash(update_hash) }
+
+		context 'when set is different from card' do
+			before do
+				allow(CardEnricher).to receive(:get_enriched_card).and_return(scryfall_response)
+			end
+
+			it 'updates all fields including custom image' do
+				subject
+				expect(cube_card.count).to eq update_hash[:count]
+				expect(cube_card.custom_set).to eq update_hash[:set]
+				expect(cube_card.custom_image).to eq image
+				expect(cube_card.custom_color_identity).to eq update_hash[:custom_color_identity]
+				expect(cube_card.custom_cmc).to eq update_hash[:custom_cmc]
+				expect(cube_card.soft_delete).to eq true
+			end
+		end
+	end
+
 	describe '.create_cube_card_from_hash' do
 		let(:cube) { create :cube }
 		let(:card) { create :card }
@@ -102,8 +140,7 @@ RSpec.describe CubeCard do
 			end
 
 			before do
-				expect_any_instance_of(Clients::Scryfall).to receive(:get_card).with(name, custom_set)
-					.and_return(scryfall_response)
+				allow(CardEnricher).to receive(:get_enriched_card).and_return(scryfall_response)
 			end
 
 			it 'calls scryfall and returns image' do
