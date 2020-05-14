@@ -15,6 +15,7 @@ class AddDraftTables < ActiveRecord::Migration[6.0]
   	create_table :draft_participants do |t|
   		t.references :draft, references: :drafts, foreign_key: { to_table: :drafts }
   		t.references :user, references: :users, foreign_key: { to_table: :users }
+      t.references :surrogate_user, references: :users, foreign_key: { to_table: :users }
   		t.string :display_name
   		t.integer :draft_position
   		t.timestamps null: false

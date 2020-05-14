@@ -67,6 +67,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
   create_table "draft_participants", force: :cascade do |t|
     t.bigint "draft_id"
     t.bigint "user_id"
+    t.bigint "surrogate_user_id"
     t.string "display_name"
     t.integer "draft_position"
     t.datetime "created_at", precision: 6, null: false
@@ -74,6 +75,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
     t.index ["draft_id", "draft_position"], name: "index_draft_participants_on_draft_id_and_draft_position", unique: true
     t.index ["draft_id", "user_id"], name: "index_draft_participants_on_draft_id_and_user_id", unique: true
     t.index ["draft_id"], name: "index_draft_participants_on_draft_id"
+    t.index ["surrogate_user_id"], name: "index_draft_participants_on_surrogate_user_id"
     t.index ["user_id"], name: "index_draft_participants_on_user_id"
   end
 
@@ -123,6 +125,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
   add_foreign_key "cubes", "users"
   add_foreign_key "draft_participants", "drafts"
   add_foreign_key "draft_participants", "users"
+  add_foreign_key "draft_participants", "users", column: "surrogate_user_id"
   add_foreign_key "drafts", "cubes"
   add_foreign_key "participant_picks", "cards"
   add_foreign_key "participant_picks", "draft_participants"
