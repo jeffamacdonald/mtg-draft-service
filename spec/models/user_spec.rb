@@ -19,16 +19,21 @@ RSpec.describe User do
 
 	describe '#display_drafts' do
 		let(:user) { create :user }
-		let!(:draft1) { create :draft }
-		let!(:draft2) { create :draft }
-		let!(:inactive_draft1) { create :draft, active_status: false }
-		let!(:inactive_draft2) { create :draft, active_status: false }
-		let!(:draft_participant1) { create :draft_participant, user_id: user.id, draft_id: draft1.id }
-		let!(:draft_participant2) { create :draft_participant, user_id: user.id, draft_id: draft2.id }
-		let!(:draft_participant3) { create :draft_participant, user_id: user.id, draft_id: inactive_draft1.id }
-		let!(:draft_participant4) { create :draft_participant, user_id: user.id, draft_id: inactive_draft2.id }
+		let!(:pending_draft1) { create :draft, status: 'PENDING' }
+		let!(:pending_draft2) { create :draft, status: 'PENDING' }
+		let!(:draft1) { create :draft, status: 'ACTIVE' }
+		let!(:draft2) { create :draft, status: 'ACTIVE' }
+		let!(:inactive_draft1) { create :draft, status: 'INACTIVE' }
+		let!(:inactive_draft2) { create :draft, status: 'INACTIVE' }
+		let!(:draft_participant1) { create :draft_participant, user_id: user.id, draft_id: pending_draft1.id }
+		let!(:draft_participant2) { create :draft_participant, user_id: user.id, draft_id: pending_draft2.id }
+		let!(:draft_participant3) { create :draft_participant, user_id: user.id, draft_id: draft1.id }
+		let!(:draft_participant4) { create :draft_participant, user_id: user.id, draft_id: draft2.id }
+		let!(:draft_participant5) { create :draft_participant, user_id: user.id, draft_id: inactive_draft1.id }
+		let!(:draft_participant6) { create :draft_participant, user_id: user.id, draft_id: inactive_draft2.id }
 		let(:expected_response) do
 			{
+				:pending => [pending_draft1, pending_draft2],
 				:active => [draft1,draft2],
 				:inactive => [inactive_draft1,inactive_draft2]
 			}

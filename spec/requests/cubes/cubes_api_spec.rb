@@ -413,7 +413,7 @@ RSpec.describe 'Cubes API Requests' do
 			end
 
 			context 'when cube is currently being drafted' do
-				let!(:draft) { create :draft, cube_id: cube.id }
+				let!(:draft) { create :draft, cube_id: cube.id, status: 'ACTIVE' }
 				let(:expected_response) do
 					{
 						:message => 'Cannot edit a cube being actively drafted'

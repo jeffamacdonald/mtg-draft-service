@@ -43,8 +43,9 @@ RSpec.describe 'Drafts API Requests' do
 					subject
 					expect(response.status).to eq 201
 					expect(Draft.all.count).to eq 1
-					expect(Draft.first.users).to eq [user1, user2]
-					expect(Draft.first.active_status).to eq true
+					expect(Draft.first.users).to include user1
+					expect(Draft.first.users).to include user2
+					expect(Draft.first.status).to eq 'ACTIVE'
 				end
 			end
 
@@ -61,9 +62,9 @@ RSpec.describe 'Drafts API Requests' do
 		end
 	end
 
-	describe 'POST /:draft_id', type: :request do
+	describe 'GET /:draft_id', type: :request do
 		let(:url) { "/api/v1/drafts/#{draft_id}" }
-		let(:draft) { create :draft }
+		let!(:draft) { create :draft }
 		let(:draft_id) { draft.id }
 
 		subject { get url }
@@ -80,6 +81,10 @@ RSpec.describe 'Drafts API Requests' do
 			let(:decoded_token) do
 				{:user_id => user.id}
 			end
+			let!(:draft_participant) { create :draft_participant, draft_id: draft.id, draft_position: 1 }
+			let(:expected_response) do
+				draft.attributes.merge(:active_participant => draft_participant)
+			end
 
 			before do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
@@ -88,11 +93,11 @@ RSpec.describe 'Drafts API Requests' do
 			it 'returns expected response body' do
 				subject
 				expect(response.status).to eq 200
-				expect(response.body).to eq draft.to_json
+				expect(response.body).to eq expected_response.to_json
 			end
 
 			context 'when draft does not exist' do
-				let(:draft_id) { 100 }
+				let(:draft_id) { 1000000000 }
 
 				it 'returns 404' do
 					subject

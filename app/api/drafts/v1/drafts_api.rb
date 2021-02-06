@@ -18,7 +18,7 @@ module Drafts
 				end
 				get ':draft_id' do
 					begin
-						Draft.find(params[:draft_id])
+						Draft.find(params[:draft_id]).display_draft
 					rescue ActiveRecord::RecordNotFound => ex
 						error!(ex.message, :not_found)
 					end
@@ -38,7 +38,7 @@ module Drafts
 							Draft.create!(cube_id: params[:cube_id],
 														name: params[:name],
 														rounds: params[:rounds],
-														active_status: true,
+														status: 'ACTIVE',
 														timer_minutes: params[:timer_minutes])
 								.create_participants(params[:user_ids])
 						end

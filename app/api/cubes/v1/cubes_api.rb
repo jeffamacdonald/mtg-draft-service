@@ -52,7 +52,7 @@ module Cubes
 					end
 				end
 				put ':cube_id' do
-					if Draft.where(cube_id: params[:cube_id], active_status: true).first
+					if Draft.where(cube_id: params[:cube_id], status: 'ACTIVE').first
 						error!({:message => "Cannot edit a cube being actively drafted"}, :forbidden)
 					end
 					begin

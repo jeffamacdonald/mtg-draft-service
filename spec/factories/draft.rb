@@ -5,7 +5,7 @@ FactoryBot.define do
   	end
   	cube_id { cube.id }
     sequence(:name) { |n| "draft#{n}" }
-    active_status { true }
+    status { 'PENDING' }
     rounds { 40 }
     timer_minutes { 120 }
   end

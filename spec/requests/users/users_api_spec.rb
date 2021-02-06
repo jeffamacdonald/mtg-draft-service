@@ -34,8 +34,8 @@ RSpec.describe 'Users API Requests' do
 			end
 		end
 
-		describe 'GET /current/cubes', type: :request do
-			let(:url) {'/api/v1/users/current/cubes'}
+		describe 'GET /cubes', type: :request do
+			let(:url) {'/api/v1/users/cubes'}
 
 			subject { get url }
 
@@ -63,8 +63,8 @@ RSpec.describe 'Users API Requests' do
 			end
 		end
 
-		describe 'GET /current/drafts', type: :request do
-			let(:url) {'/api/v1/users/current/drafts'}
+		describe 'GET /drafts', type: :request do
+			let(:url) {'/api/v1/users/drafts'}
 
 			subject { get url }
 
@@ -76,16 +76,17 @@ RSpec.describe 'Users API Requests' do
 			end
 
 			context 'when user is signed in' do
-				let!(:draft1) { create :draft }
-				let!(:draft2) { create :draft }
-				let!(:inactive_draft1) { create :draft, active_status: false }
-				let!(:inactive_draft2) { create :draft, active_status: false }
+				let!(:draft1) { create :draft, status: 'ACTIVE' }
+				let!(:draft2) { create :draft, status: 'ACTIVE' }
+				let!(:inactive_draft1) { create :draft, status: 'INACTIVE' }
+				let!(:inactive_draft2) { create :draft, status: 'INACTIVE' }
 				let!(:draft_participant1) { create :draft_participant, user_id: user.id, draft_id: draft1.id }
 				let!(:draft_participant2) { create :draft_participant, user_id: user.id, draft_id: draft2.id }
 				let!(:draft_participant3) { create :draft_participant, user_id: user.id, draft_id: inactive_draft1.id }
 				let!(:draft_participant4) { create :draft_participant, user_id: user.id, draft_id: inactive_draft2.id }
 				let(:expected_response) do
 					{
+						:pending => [],
 						:active => [draft1,draft2],
 						:inactive => [inactive_draft1,inactive_draft2]
 					}

@@ -13,8 +13,9 @@ class User < ApplicationRecord
 
   def display_drafts
   	{
-  		:active => drafts.select{ |draft| draft.active_status },
-  		:inactive => drafts.select{ |draft| !draft.active_status }
+      :pending => drafts.select(&:pending?),
+  		:active => drafts.select(&:active?),
+  		:inactive => drafts.select(&:inactive?)
   	}
   end
 end

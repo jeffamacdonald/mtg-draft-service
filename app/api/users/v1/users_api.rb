@@ -17,17 +17,14 @@ module Users
 					User.all.map { |user| user.display_user }
 				end
 
-				resource :current do
+				desc 'get all cubes for authenticated user'
+				get 'cubes' do
+					@user.cubes
+				end
 
-					desc 'get all cubes for authenticated user'
-					get 'cubes' do
-						@user.cubes
-					end
-
-					desc 'get all drafts for authenticated user'
-					get 'drafts' do
-						@user.display_drafts
-					end
+				desc 'get all drafts for authenticated user'
+				get 'drafts' do
+					@user.display_drafts
 				end
 
 			end

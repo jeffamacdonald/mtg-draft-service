@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_28_170323) do
+ActiveRecord::Schema.define(version: 2021_02_06_222433) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
     t.bigint "surrogate_user_id"
     t.string "display_name"
     t.integer "draft_position"
+    t.boolean "skipped"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["draft_id", "draft_position"], name: "index_draft_participants_on_draft_id_and_draft_position", unique: true
@@ -82,14 +83,14 @@ ActiveRecord::Schema.define(version: 2020_04_28_170323) do
   create_table "drafts", force: :cascade do |t|
     t.bigint "cube_id"
     t.string "name", null: false
-    t.boolean "active_status", null: false
     t.integer "rounds", null: false
     t.integer "timer_minutes"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["active_status"], name: "index_drafts_on_active_status"
+    t.string "status", null: false
     t.index ["cube_id"], name: "index_drafts_on_cube_id"
     t.index ["name"], name: "index_drafts_on_name"
+    t.index ["status"], name: "index_drafts_on_status"
   end
 
   create_table "jwt_blacklist", force: :cascade do |t|

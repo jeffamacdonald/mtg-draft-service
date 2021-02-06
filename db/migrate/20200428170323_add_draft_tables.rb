@@ -18,6 +18,7 @@ class AddDraftTables < ActiveRecord::Migration[6.0]
       t.references :surrogate_user, references: :users, foreign_key: { to_table: :users }
   		t.string :display_name
   		t.integer :draft_position
+      t.boolean :skipped
   		t.timestamps null: false
   	end
 
