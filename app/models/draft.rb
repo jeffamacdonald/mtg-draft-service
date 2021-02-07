@@ -14,17 +14,22 @@ class Draft < ApplicationRecord
 
 	def create_participants(user_ids)
 		users = User.find(user_ids)
-		draft_participant_hashes = users.shuffle.map.with_index do |user, i|
+		draft_participant_hashes = users.map do |user|
 			{
 				:draft_id => id,
 				:user_id => user.id,
 				:display_name => user.username,
-				:draft_position => i + 1,
 				:created_at => Time.now,
 				:updated_at => Time.now
 			}
 		end
 		DraftParticipant.insert_all(draft_participant_hashes)
+	end
+
+	def set_participant_positions
+		draft_participants.shuffle.each.with_index do |participant, i|
+			participant.update(draft_position: i + 1)
+		end
 	end
 
 	def display_draft

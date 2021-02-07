@@ -43,8 +43,6 @@ RSpec.describe Draft do
 				expect(participants.find { |p| p[:draft_id] == draft.id }).to be_present
 				expect(participants.find { |p| p[:user_id] == user1.id }).to be_present
 				expect(participants.find { |p| p[:display_name] == user1.username }).to be_present
-				expect(participants.find { |p| p[:draft_position] == 1 }).to be_present
-				expect(participants.find { |p| p[:draft_position] == 2 }).to be_present
 			end
 		end
 
@@ -54,6 +52,24 @@ RSpec.describe Draft do
 			it 'raises RecordNotFound exception' do
 				expect{subject}.to raise_error(ActiveRecord::RecordNotFound)
 			end
+		end
+	end
+
+	describe '#set_participant_positions' do
+		let!(:draft) { create :draft }
+		let!(:draft_participant_1) { create :draft_participant, draft_id: draft.id, draft_position: nil }
+		let!(:draft_participant_2) { create :draft_participant, draft_id: draft.id, draft_position: nil }
+
+		subject { draft.set_participant_positions }
+
+		before do
+			allow_any_instance_of(Array).to receive(:shuffle).and_return([draft_participant_2, draft_participant_1])
+		end
+
+		it 'participant positions are randomized' do
+			expect(draft_participant_1).to receive(:update).with(draft_position: 2)
+			expect(draft_participant_2).to receive(:update).with(draft_position: 1)
+			subject
 		end
 	end
 
