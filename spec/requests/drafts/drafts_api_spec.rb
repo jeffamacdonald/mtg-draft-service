@@ -43,6 +43,7 @@ RSpec.describe 'Drafts API Requests' do
 					subject
 					expect(response.status).to eq 201
 					expect(Draft.all.count).to eq 1
+					expect(Draft.first.user_id).to eq user1.id
 					expect(Draft.first.users).to include user1
 					expect(Draft.first.users).to include user2
 					expect(Draft.first.status).to eq 'PENDING'
@@ -107,9 +108,84 @@ RSpec.describe 'Drafts API Requests' do
 		end
 	end
 
-	describe 'PATCH /:draft_id/start' do
+	describe 'POST /:draft_id/add_participants', type: :request do
+		let(:url) { "/api/v1/drafts/#{draft_id}/add_participants" }
+		let(:status) { 'PENDING' }
+		let!(:other_user) { create :user }
+		let(:user_id) { other_user.id }
+		let!(:draft) { create :draft, status: status, user_id: user_id }
+		let(:draft_id) { draft.id }
+		let(:user1) { create :user }
+		let(:user2) { create :user }
+		let(:user_ids) { [user1.id,user2.id] }
+		let(:params) { { :user_ids => user_ids } }
+
+		subject { post url, params: params }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			let(:user) { create :user }
+			let(:decoded_token) do
+				{:user_id => user.id}
+			end
+			let(:user_id) { user.id }
+
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			it 'adds users as participants' do
+				subject
+				expect(response.status).to eq 201
+				expect(draft.reload.users).to include user1
+				expect(draft.users).to include user2
+			end
+
+			context 'when signed in user is not draft owner' do
+				let(:user_id) { user.id + 1 }
+				let(:expected_error) { { "error": "Only draft owners can add participants" } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
+				end
+			end
+
+			context 'when draft does not exist' do
+				let(:draft_id) { 1000000000 }
+
+				it 'returns 404' do
+					subject
+					expect(response.status).to eq 404
+				end
+			end
+
+			context 'when draft is not PENDING' do
+				let(:status) { 'ACTIVE' }
+				let(:expected_error) { { "error": "Can only add participants to a PENDING draft" } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
+				end
+			end
+		end
+	end
+
+	describe 'PATCH /:draft_id/start', type: :request do
 		let(:url) { "/api/v1/drafts/#{draft_id}/start" }
-		let!(:draft) { create :draft, status: 'PENDING' }
+		let(:status) { 'PENDING' }
+		let!(:other_user) { create :user }
+		let(:user_id) { other_user.id }
+		let!(:draft) { create :draft, status: status, user_id: user_id }
 		let!(:draft_participant_1) { create :draft_participant, draft_id: draft.id }
 		let!(:draft_participant_2) { create :draft_participant, draft_id: draft.id }
 		let!(:draft_participant_3) { create :draft_participant, draft_id: draft.id }
@@ -129,6 +205,7 @@ RSpec.describe 'Drafts API Requests' do
 			let(:decoded_token) do
 				{:user_id => user.id}
 			end
+			let(:user_id) { user.id }
 
 			before do
 				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
@@ -144,12 +221,101 @@ RSpec.describe 'Drafts API Requests' do
 				expect(draft_participant_3.reload.draft_position).to eq 2
 			end
 
+			context 'when signed in user is not draft owner' do
+				let(:user_id) { user.id + 1 }
+				let(:expected_error) { { "error": "Only draft owners can start the draft" } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
+				end
+			end
+
 			context 'when draft does not exist' do
 				let(:draft_id) { 1000000000 }
 
 				it 'returns 404' do
 					subject
 					expect(response.status).to eq 404
+				end
+			end
+
+			context 'when draft is not PENDING' do
+				let(:status) { 'ACTIVE' }
+				let(:expected_error) { { "error": "Can only start a PENDING draft" } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
+				end
+			end
+		end
+	end
+
+	describe 'POST /:draft_id/join', type: :request do
+		let(:url) { "/api/v1/drafts/#{draft_id}/join" }
+		let(:status) { 'PENDING' }
+		let!(:other_user) { create :user }
+		let(:user_id) { other_user.id }
+		let!(:draft) { create :draft, status: status, user_id: user_id }
+		let(:draft_id) { draft.id }
+
+		subject { post url }
+
+		context 'when user is not signed in' do
+			it 'returns 403' do
+				subject
+				expect(response.status).to eq 403
+			end
+		end
+
+		context 'when user is signed in' do
+			let(:user) { create :user }
+			let(:decoded_token) do
+				{:user_id => user.id}
+			end
+			let(:user_id) { user.id }
+
+			before do
+				allow(JsonWebToken).to receive(:decode).and_return(decoded_token)
+			end
+
+			it 'adds signed in user as participant' do
+				subject
+				expect(response.status).to eq 201
+				expect(draft.reload.users).to include user
+			end
+
+			context 'when user is already participating' do
+				let!(:participant) { create :draft_participant, draft_id: draft.id, user_id: user_id }
+				let(:expected_error) { { 'error': 'You have already joined' } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
+				end
+			end
+
+			context 'when draft does not exist' do
+				let(:draft_id) { 1000000000 }
+
+				it 'returns 404' do
+					subject
+					expect(response.status).to eq 404
+				end
+			end
+
+			context 'when draft is not PENDING' do
+				let(:status) { 'ACTIVE' }
+				let(:expected_error) { { "error": "Can only join a PENDING draft" } }
+
+				it 'returns 400' do
+					subject
+					expect(response.status).to eq 400
+					expect(response.body).to eq expected_error.to_json
 				end
 			end
 		end

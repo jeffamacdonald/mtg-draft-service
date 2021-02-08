@@ -2,15 +2,16 @@ class AddDraftTables < ActiveRecord::Migration[6.0]
   def change
   	create_table :drafts do |t|
   		t.references :cube, references: :cubes, foreign_key: { to_table: :cubes }
+      t.references :user, references: :users, foreign_key: { to_table: :users }
       t.string :name, null: false
-  		t.boolean :active_status, null: false
   		t.integer :rounds, null: false
   		t.integer :timer_minutes
+      t.string :status, null: false
   		t.timestamps null: false
   	end
 
     add_index :drafts, :name
-  	add_index :drafts, :active_status
+  	add_index :drafts, :status
 
   	create_table :draft_participants do |t|
   		t.references :draft, references: :drafts, foreign_key: { to_table: :drafts }

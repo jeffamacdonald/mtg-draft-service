@@ -53,6 +53,15 @@ RSpec.describe Draft do
 				expect{subject}.to raise_error(ActiveRecord::RecordNotFound)
 			end
 		end
+
+		context 'when a user is already a participant' do
+			let!(:participant) { create :draft_participant, draft_id: draft.id, user_id: user1.id }
+
+			it 'only creates new participants' do
+				subject
+				expect(DraftParticipant.all.count).to eq 2
+			end
+		end
 	end
 
 	describe '#set_participant_positions' do

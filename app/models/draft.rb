@@ -13,7 +13,8 @@ class Draft < ApplicationRecord
 	end
 
 	def create_participants(user_ids)
-		users = User.find(user_ids)
+		existing_user_ids = draft_participants.map(&:user_id)
+		users = User.find(user_ids.reject{|id| existing_user_ids.include? id})
 		draft_participant_hashes = users.map do |user|
 			{
 				:draft_id => id,

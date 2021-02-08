@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_06_222433) do
+ActiveRecord::Schema.define(version: 2020_04_28_170323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,15 +82,17 @@ ActiveRecord::Schema.define(version: 2021_02_06_222433) do
 
   create_table "drafts", force: :cascade do |t|
     t.bigint "cube_id"
+    t.bigint "user_id"
     t.string "name", null: false
     t.integer "rounds", null: false
     t.integer "timer_minutes"
+    t.string "status", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "status", null: false
     t.index ["cube_id"], name: "index_drafts_on_cube_id"
     t.index ["name"], name: "index_drafts_on_name"
     t.index ["status"], name: "index_drafts_on_status"
+    t.index ["user_id"], name: "index_drafts_on_user_id"
   end
 
   create_table "jwt_blacklist", force: :cascade do |t|
@@ -128,6 +130,7 @@ ActiveRecord::Schema.define(version: 2021_02_06_222433) do
   add_foreign_key "draft_participants", "users"
   add_foreign_key "draft_participants", "users", column: "surrogate_user_id"
   add_foreign_key "drafts", "cubes"
+  add_foreign_key "drafts", "users"
   add_foreign_key "participant_picks", "cube_cards"
   add_foreign_key "participant_picks", "draft_participants"
 end
