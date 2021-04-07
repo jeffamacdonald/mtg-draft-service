@@ -87,8 +87,8 @@ RSpec.describe 'Users API Requests' do
 				let(:expected_response) do
 					{
 						:pending => [],
-						:active => [draft1,draft2],
-						:inactive => [inactive_draft1,inactive_draft2]
+						:active => [draft1.display_draft,draft2.display_draft],
+						:inactive => [inactive_draft1.display_draft,inactive_draft2.display_draft]
 					}
 				end
 

@@ -33,9 +33,9 @@ RSpec.describe User do
 		let!(:draft_participant6) { create :draft_participant, user_id: user.id, draft_id: inactive_draft2.id }
 		let(:expected_response) do
 			{
-				:pending => [pending_draft1, pending_draft2],
-				:active => [draft1,draft2],
-				:inactive => [inactive_draft1,inactive_draft2]
+				:pending => [pending_draft1.display_draft, pending_draft2.display_draft],
+				:active => [draft1.display_draft,draft2.display_draft],
+				:inactive => [inactive_draft1.display_draft,inactive_draft2.display_draft]
 			}
 		end
 
