@@ -14,7 +14,17 @@ module Users
 
 				desc 'get all users'
 				get '' do
-					User.all.map { |user| user.display_user }
+					User.all.map(&:display_user)
+				end
+
+				desc 'search users'
+				params do
+					requires :term, type: String, allow_blank: false
+				end
+				get 'search' do
+					User.where("username LIKE ?", "%#{params[:term]}%")
+						.or(User.where("email LIKE ?","%#{params[:term]}%"))
+						.all.map(&:display_user)
 				end
 
 				desc 'get all cubes for authenticated user'
