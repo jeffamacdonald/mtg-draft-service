@@ -5,7 +5,7 @@ ruby '2.5.1'
 
 gem 'rails', '~> 6.0.2', '>= 6.0.2.2'
 gem 'pg', '>= 0.18', '< 2.0'
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 4.3'
 gem 'grape'
 gem 'bcrypt', '~> 3.1.7'
 gem 'jwt'
